@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-slate-950 text-white min-h-screen`}>
         <Providers>
           <Navbar />
           <main className="pt-20">

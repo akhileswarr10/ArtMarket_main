@@ -90,28 +90,6 @@ export default function ArtworksPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2.5 group"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center">
-              <Palette className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-white text-sm">ArtMarket</span>
-          </button>
-          <h1 className="text-sm font-bold text-slate-300">Gallery</h1>
-          <button
-             onClick={() => router.push('/buyer/dashboard')}
-            className="text-xs text-slate-400 hover:text-white transition-colors font-medium"
-          >
-            Dashboard →
-          </button>
-        </div>
-      </header>
-
       <main className="container mx-auto px-6 py-10">
         {/* Hero text */}
         <div className="text-center mb-10">

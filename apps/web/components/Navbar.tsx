@@ -48,7 +48,7 @@ export default function Navbar() {
   const role = session?.user?.app_metadata?.role as 'artist' | 'buyer' | undefined
 
   const navLinks = [
-    { name: 'Discover', href: '/buyer/dashboard', icon: Sparkles, show: role === 'buyer' },
+    { name: 'Discover', href: '/', icon: Sparkles, show: role === 'buyer' },
     { name: 'Studio', href: '/artist/dashboard', icon: Palette, show: role === 'artist' },
     { name: 'Upload New', href: '/artist/upload', icon: Upload, show: role === 'artist' },
     { name: 'Favorites', href: '/buyer/favorites', icon: Heart, show: role === 'buyer' },
@@ -122,6 +122,14 @@ export default function Navbar() {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className="absolute right-0 mt-3 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 z-20 backdrop-blur-xl"
                     >
+                      <Link 
+                        href="/dashboard"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all"
+                      >
+                        <User className="w-4 h-4" />
+                        Dashboard
+                      </Link>
                       <Link 
                         href="/settings"
                         onClick={() => setProfileDropdownOpen(false)}

@@ -54,26 +54,6 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <button
-            onClick={() => router.push('/buyer/dashboard')}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Back to Dashboard
-          </button>
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500">
-              <Heart className="w-4 h-4 fill-current" />
-            </div>
-            <span className="font-bold text-white text-sm">Your Favorites</span>
-          </div>
-          <div className="w-20" />
-        </div>
-      </header>
-
       <main className="container mx-auto px-6 py-12">
         <div className="mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-widest mb-4">

@@ -81,40 +81,6 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Navigation */}
-      <nav className="border-b border-white/5 bg-slate-950/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-12">
-            <h1 className="text-2xl font-black bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
-              ArtMarket
-            </h1>
-            <div className="hidden md:flex items-center gap-8">
-              <button className="text-sm font-bold text-white">Discover</button>
-              <button onClick={() => router.push('/artworks')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Marketplace</button>
-              <button onClick={() => router.push('/buyer/purchases')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">My Collection</button>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <button onClick={() => router.push('/buyer/favorites')} className="p-2 text-slate-400 hover:text-rose-500 transition-colors relative group">
-              <Heart className="w-6 h-6" />
-              {favoritesData?.total > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full group-hover:scale-125 transition-transform" />
-              )}
-            </button>
-            <div className="h-8 w-[1px] bg-white/10" />
-            <div className="flex items-center gap-4 group cursor-pointer" onClick={() => router.push('/settings')}>
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-white">{user?.email?.split('@')[0]}</p>
-                <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Collector</p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                {user?.email?.[0].toUpperCase()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}
