@@ -1,0 +1,99 @@
+# ==========================================
+# Frontend / Next.js / Node.js
+# ==========================================
+# dependencies
+apps/web/node_modules/
+node_modules/
+.npm/
+
+# testing
+coverage/
+.nyc_output/
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# misc
+.eslintcache
+.stylelintcache
+
+# ==========================================
+# Backend / Python / FastAPI
+# ==========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+apps/api/.venv/
+apps/api/env/
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+
+# ==========================================
+# Supabase
+# ==========================================
+supabase/.temp/
+supabase/.branch/
+
+# ==========================================
+# OS / Environment Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+.env.*
+
+# ==========================================
+# IDEs and Tools
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# ==========================================
+# Logs and Databases
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# Project Specific Artifacts
+# ==========================================
+.agent/
+graphify-out/
+claude.md
