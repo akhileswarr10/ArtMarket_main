@@ -6,10 +6,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Palette, User, Settings as SettingsIcon, LogOut, 
-  Menu, X, Sparkles, MessageSquare, Bell, ShoppingBag,
-  Package, Upload, Heart
+  Palette, User, Settings as SettingsIcon, LogOut,
+  Menu, X, Sparkles, ShoppingBag,
+  Upload, Heart
 } from 'lucide-react'
+import NotificationBell from './NotificationBell'
+import CartIcon from './CartIcon'
 
 
 export default function Navbar() {
@@ -92,10 +94,8 @@ export default function Navbar() {
 
         {/* User Menu */}
         <div className="flex items-center gap-4">
-          <button className="p-2 text-slate-400 hover:text-white transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-slate-950" />
-          </button>
+          {session && role === 'buyer' && <CartIcon />}
+          {session && <NotificationBell userId={session.user.id} />}
 
           {session ? (
             <div className="relative">

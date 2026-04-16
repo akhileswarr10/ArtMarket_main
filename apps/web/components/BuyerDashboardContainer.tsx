@@ -42,7 +42,7 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
 
   const { data: ordersData } = useQuery({
     queryKey: ['my-purchases-count', user?.id],
-    queryFn: () => fetchApi('/orders/mine?limit=1'),
+    queryFn: () => fetchApi('/orders?limit=1'),
     enabled: !!session,
   })
 

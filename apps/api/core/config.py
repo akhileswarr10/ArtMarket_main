@@ -21,6 +21,13 @@ class Settings(BaseSettings):
     # App
     DEBUG: bool = False
     WEBHOOK_SECRET: str = ""        # Supabase Auth webhook secret (if configured)
+    
+    # Commerce & Celery
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    RESEND_API_KEY: str = ""
+    MAX_ORDER_VALUE: float = 500000.0
+    CART_MAX_CANCELLED_ORDERS_DAYS: int = 7
+    CART_MAX_CANCELLED_ORDERS_COUNT: int = 3
 
     class Config:
         env_file = ".env"

@@ -41,6 +41,9 @@ class ArtistProfile(Base):
     stripe_account_id: Mapped[str | None] = mapped_column(Text(), nullable=True)
     is_verified: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
     address: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    verification_status: Mapped[str] = mapped_column(String(50), nullable=False, server_default="unverified")
+    verification_submitted_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+    verification_notes: Mapped[str | None] = mapped_column(Text(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -139,8 +142,8 @@ class ArtworkTag(Base):
     tag_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    artwork: Mapped["Artwork"] = relationship("Artwork", back_populates="artwork_tags")
-    tag: Mapped["Tag"] = relationship("Tag", back_populates="artwork_tags")
+    artwork: Mapped["Artwork"] = relationship("Artwork", back_populates="artwork_tags", lazy="selectin")
+    tag: Mapped["Tag"] = relationship("Tag", back_populates="artwork_tags", lazy="selectin")
 
 
 class Favorite(Base):
@@ -169,24 +172,115 @@ class AuditLog(Base):
     old_data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     new_data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     ip_address: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
 class Order(Base):
     __tablename__ = "orders"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     buyer_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="NO ACTION"), nullable=False)
-    artwork_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("artworks.id", ondelete="NO ACTION"), nullable=False)
-    amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="paid")
-    shipping_details: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    stripe_session_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")
+    total_amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(10), nullable=False, default="usd")
+    shipping_address: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     buyer: Mapped["User"] = relationship("User", foreign_keys=[buyer_id])
-    artwork: Mapped["Artwork"] = relationship("Artwork")
+    items: Mapped[list["OrderItem"]] = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan", lazy="selectin")
 
     __table_args__ = (
-        CheckConstraint("status IN ('pending', 'paid', 'shipped', 'delivered', 'cancelled')", name='orders_status_check'),
+        CheckConstraint("status IN ('pending', 'paid', 'fulfilled', 'cancelled', 'refunded')", name='orders_status_check'),
         Index("idx_orders_buyer_id", "buyer_id"),
-        Index("idx_orders_artwork_id", "artwork_id"),
     )
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    order_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    artwork_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("artworks.id", ondelete="NO ACTION"), nullable=False)
+    artist_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="NO ACTION"), nullable=False)
+    price_paid: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    title_snapshot: Mapped[str] = mapped_column(Text(), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="active")
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    order: Mapped["Order"] = relationship("Order", back_populates="items")
+    artwork: Mapped["Artwork"] = relationship("Artwork", lazy="selectin")
+    artist: Mapped["User"] = relationship("User", foreign_keys=[artist_id])
+
+class Cart(Base):
+    __tablename__ = "carts"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    buyer_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    buyer: Mapped["User"] = relationship("User", foreign_keys=[buyer_id])
+    items: Mapped[list["CartItem"]] = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan", lazy="selectin")
+
+    @property
+    def total(self) -> float:
+        return sum(float(item.price_at_add or 0) for item in self.items)
+
+class CartItem(Base):
+    __tablename__ = "cart_items"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    cart_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("carts.id", ondelete="CASCADE"), nullable=False)
+    artwork_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("artworks.id", ondelete="CASCADE"), nullable=False)
+    price_at_add: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    added_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    cart: Mapped["Cart"] = relationship("Cart", back_populates="items")
+    artwork: Mapped["Artwork"] = relationship("Artwork", lazy="selectin")
+
+    __table_args__ = (
+        UniqueConstraint("cart_id", "artwork_id", name="uq_cart_items_cart_artwork"),
+    )
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    order_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    type: Mapped[str] = mapped_column(String(50), nullable=False)
+    amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(10), nullable=False, default="usd")
+    status: Mapped[str] = mapped_column(String(50), nullable=False)
+    stripe_response: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    order: Mapped["Order"] = relationship("Order")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    type: Mapped[str] = mapped_column(String(50), nullable=False)
+    title: Mapped[str] = mapped_column(Text(), nullable=False)
+    body: Mapped[str] = mapped_column(Text(), nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
+    metadata_data: Mapped[dict | None] = mapped_column("metadata", JSONB(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
+
+    __table_args__ = (
+        Index("idx_notifications_user_read", "user_id", "is_read"),
+    )
+
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+
+    key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    value: Mapped[str] = mapped_column(Text(), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())

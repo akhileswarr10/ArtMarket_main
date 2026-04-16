@@ -40,7 +40,10 @@ class UserRepository:
         user.role = role
         await self.db.commit()
         return await self.get_by_id(user.id)
-
+    async def set_active_status(self, user: User, is_active: bool) -> User:
+        user.is_active = is_active
+        await self.db.commit()
+        return await self.get_by_id(user.id)
     async def create_artist_profile(self, user_id: uuid.UUID, display_name: str, bio: str = None, website_url: str = None) -> ArtistProfile:
         profile = ArtistProfile(user_id=user_id, display_name=display_name, bio=bio, website_url=website_url)
         self.db.add(profile)
