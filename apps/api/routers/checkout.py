@@ -93,6 +93,8 @@ async def confirm_checkout_dummy(
     for aid in artwork_ids:
         await cart_repo.remove_item(cart.id, uuid.UUID(aid))
 
-    remove_sold_artworks_from_carts(artwork_ids)
+    # We no longer remove sold items from other carts automatically,
+    # so they can see the 'Sold Out' status as requested.
+    # remove_sold_artworks_from_carts(artwork_ids)
 
     return {"status": "success", "order_id": order.id}

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 import CartIcon from './CartIcon'
+import { useCartStore } from '@/lib/stores/cartStore'
 
 
 export default function Navbar() {
@@ -22,6 +23,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+
+  const { setCart, isInitialized } = useCartStore()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,8 +44,20 @@ export default function Navbar() {
     }
   }, [supabase])
 
+  useEffect(() => {
+    if (session?.user && !isInitialized) {
+      const role = session.user.app_metadata?.role
+      if (role === 'buyer') {
+        import('@/lib/api/client').then(({ getCart }) => {
+            getCart().then(setCart).catch(console.error)
+        })
+      }
+    }
+  }, [session, isInitialized, setCart])
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    setCart({ id: '', buyer_id: '', items: [], total: 0, created_at: '' }) // Clear cart on logout
     router.push('/login')
     router.refresh()
   }

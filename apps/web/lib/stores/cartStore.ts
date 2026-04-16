@@ -28,24 +28,31 @@ export interface CartResponse {
 
 interface CartStore {
   items: CartItem[]
+  isOpen: boolean
   totalCount: number
   isInitialized: boolean
   setCart: (cart: CartResponse) => void
   addItemOptimistic: (item: CartItem) => void
   removeItemOptimistic: (artworkId: string) => void
+  setIsOpen: (isOpen: boolean) => void
+  clearCart: () => void
 }
 
 export const useCartStore = create<CartStore>((set) => ({
   items: [],
+  isOpen: false,
   totalCount: 0,
   isInitialized: false,
   setCart: (cart) => set({ items: cart.items, totalCount: cart.items.length, isInitialized: true }),
   addItemOptimistic: (item) => set((state) => ({
     items: [...state.items, item],
-    totalCount: state.totalCount + 1
+    totalCount: state.totalCount + 1,
+    isOpen: true // Automatically open cart when adding
   })),
   removeItemOptimistic: (artworkId) => set((state) => ({
     items: state.items.filter(i => i.artwork_id !== artworkId),
     totalCount: Math.max(0, state.totalCount - 1)
   })),
+  setIsOpen: (isOpen) => set({ isOpen }),
+  clearCart: () => set({ items: [], totalCount: 0, isInitialized: true }),
 }))

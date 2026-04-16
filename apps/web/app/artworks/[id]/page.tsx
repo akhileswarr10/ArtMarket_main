@@ -8,8 +8,11 @@ import { fetchApi } from '@/lib/api/client'
 import {
   ArrowLeft, Heart, ShoppingCart, Eye, Palette, Maximize2,
   Sparkles, Share2, Clock, ShieldCheck, AlertCircle, Package,
-  Trash2, Edit3, Loader2
+  Trash2, Edit3, Loader2, Check
 } from 'lucide-react'
+import { useCartStore } from '@/lib/stores/cartStore'
+import { addToCart } from '@/lib/api/client'
+import FavoriteButton from '@/components/FavoriteButton'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -34,6 +37,7 @@ interface Artwork {
   created_at: string
   images: ArtworkImage[]
   tags: { id: string; name: string }[]
+  is_favorited?: boolean
 }
 
 export default function ArtworkDetailPage() {
@@ -45,15 +49,61 @@ export default function ArtworkDetailPage() {
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [isFavorite, setIsFavorite] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
-  const [toggling, setToggling] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const [added, setAdded] = useState(false)
+
+  const { addItemOptimistic } = useCartStore()
 
   useEffect(() => {
     fetchData()
   }, [params.id])
+
+  const handleAddToCart = async () => {
+    if (!artwork) return
+    setIsAdding(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/login')
+        return
+      }
+
+      await addToCart(artwork.id)
+      
+      const primaryImage = artwork.images?.find(i => i.is_primary) || artwork.images?.[0]
+      
+      addItemOptimistic({
+        id: Math.random().toString(36).substr(2, 9), // Temp ID
+        cart_id: '',
+        artwork_id: artwork.id,
+        price_at_add: artwork.price || 0,
+        added_at: new Date().toISOString(),
+        artwork: {
+          id: artwork.id,
+          title: artwork.title,
+          price: artwork.price,
+          status: artwork.status,
+          artist_id: artwork.artist_id,
+          primary_image_url: primaryImage?.signed_url || null
+        }
+      })
+      
+      setAdded(true)
+      setTimeout(() => setAdded(false), 2000)
+    } catch (err: any) {
+      if (!err.message?.includes('already in cart')) {
+        alert(err.message || 'Failed to add to cart')
+      } else {
+        // If already in cart, just open it
+        useCartStore.getState().setIsOpen(true)
+      }
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -83,26 +133,6 @@ export default function ArtworkDetailPage() {
     }
   }
 
-  const toggleFavorite = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      router.push('/login')
-      return
-    }
-    setToggling(true)
-    try {
-      const response = await fetch(`${API_URL}/artworks/${params.id}/favorite`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setIsFavorite(data.favorited)
-      }
-    } finally {
-      setToggling(false)
-    }
-  }
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -333,19 +363,35 @@ export default function ArtworkDetailPage() {
                 </div>
               ) : (
                 <>
-                   <button
-                    onClick={toggleFavorite}
-                    disabled={toggling}
-                    className="px-6 py-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 text-slate-400 hover:text-white transition-all"
+                  <FavoriteButton
+                    artworkId={artwork.id}
+                    initialIsFavorited={artwork.is_favorited || false}
+                    size="lg"
+                  />
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isAdding || artwork.status === 'sold'}
+                    className={`flex-1 py-4 font-black rounded-2xl transition-all flex items-center justify-center gap-2 ${
+                      added 
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                        : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                    }`}
                   >
-                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-emerald-500 text-emerald-500' : ''}`} />
+                    {isAdding ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : added ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <ShoppingCart className="w-4 h-4" />
+                    )}
+                    {added ? 'Added to Cart' : 'Add to Cart'}
                   </button>
                   <button
                     onClick={() => router.push(`/purchase?artworkId=${artwork.id}`)}
-                    className="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group"
                   >
-                    <ShoppingCart className="w-4 h-4" />
-                    Complete Acquisition
+                    Buy Now
+                    <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </>
               )}

@@ -10,6 +10,7 @@ import {
   Search, X, SlidersHorizontal, ImageIcon, ChevronLeft,
   ChevronRight, Palette, Sparkles, Filter, Heart, Loader2
 } from 'lucide-react'
+import FavoriteButton from '@/components/FavoriteButton'
 
 interface Artwork {
   id: string
@@ -34,7 +35,6 @@ export default function ArtworksPage() {
   const [medium, setMedium] = useState('')
   const [style, setStyle] = useState('')
   const [skip, setSkip] = useState(0)
-  const [togglingId, setTogglingId] = useState<string | null>(null)
   const limit = 12
 
   useEffect(() => {
@@ -62,20 +62,6 @@ export default function ArtworksPage() {
     e.preventDefault()
     setSearch(searchInput)
     setSkip(0)
-  }
-
-  const handleToggleFavorite = async (artworkId: string) => {
-    if (togglingId) return
-    setTogglingId(artworkId)
-    try {
-      await fetchApi(`/artworks/${artworkId}/favorite`, { method: 'POST' })
-      queryClient.invalidateQueries({ queryKey: ['artworks'] })
-      queryClient.invalidateQueries({ queryKey: ['my-favorites-count'] })
-    } catch (error) {
-       console.error("Failed to toggle favorite", error)
-    } finally {
-      setTogglingId(null)
-    }
   }
 
   const clearFilters = () => {
@@ -229,25 +215,12 @@ export default function ArtworksPage() {
                       )}
                       
                       {/* Heart Toggle */}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              handleToggleFavorite(artwork.id)
-                            }}
-                            disabled={togglingId === artwork.id}
-                            className={`p-1.5 backdrop-blur-md rounded-lg transition-all ${
-                              artwork.is_favorited 
-                                ? 'bg-rose-500 text-white' 
-                                : 'bg-black/40 text-white hover:text-rose-400'
-                            }`}
-                          >
-                            {togglingId === artwork.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <Heart className={`w-3 h-3 ${artwork.is_favorited ? 'fill-current' : ''}`} />
-                            )}
-                          </button>
+                      <div className="absolute top-2 right-2 z-10">
+                         <FavoriteButton
+                            artworkId={artwork.id}
+                            initialIsFavorited={artwork.is_favorited}
+                            size="sm"
+                          />
                       </div>
                     </div>
                     <div className="p-3">

@@ -7,15 +7,11 @@ import { X, Trash2, ShoppingBag } from 'lucide-react'
 import { useCartStore } from '@/lib/stores/cartStore'
 import { removeFromCart } from '@/lib/api/client'
 
-export default function CartDrawer({ 
-  isOpen, 
-  onClose 
-}: { 
-  isOpen: boolean
-  onClose: () => void 
-}) {
+export default function CartDrawer() {
   const router = useRouter()
-  const { items, totalCount, removeItemOptimistic } = useCartStore()
+  const { items, totalCount, removeItemOptimistic, isOpen, setIsOpen } = useCartStore()
+
+  const onClose = () => setIsOpen(false)
 
   const handleRemove = async (artworkId: string) => {
     // Optimistic
@@ -28,7 +24,7 @@ export default function CartDrawer({
   }
 
   const handleCheckout = () => {
-    onClose()
+    setIsOpen(false)
     router.push('/checkout')
   }
 
@@ -68,6 +64,13 @@ export default function CartDrawer({
               </button>
             </div>
 
+            {items.some(i => i.artwork.status === 'sold') && (
+              <div className="bg-rose-500/10 border-b border-rose-500/20 p-4 text-xs text-rose-400 font-medium flex gap-2 items-center">
+                <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                Some items are no longer available and must be removed.
+              </div>
+            )}
+
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {items.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center text-slate-500">
@@ -82,36 +85,46 @@ export default function CartDrawer({
                   </button>
                 </div>
               ) : (
-                items.map((item) => (
-                  <div key={item.id} className="flex gap-4 group">
-                    <div className="w-24 h-24 bg-slate-800 rounded-xl overflow-hidden shrink-0">
-                      {item.artwork.primary_image_url ? (
-                        <img 
-                          src={item.artwork.primary_image_url} 
-                          alt={item.artwork.title || 'Artwork'} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-600">No Image</div>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div>
-                        <h3 className="font-bold text-white text-sm line-clamp-1">{item.artwork.title}</h3>
-                        <p className="text-xs text-slate-400 mt-1">Authentic Original</p>
+                items.map((item) => {
+                  const isSold = item.artwork.status === 'sold'
+                  return (
+                    <div key={item.id} className={`flex gap-4 group transition-opacity ${isSold ? 'opacity-50' : ''}`}>
+                      <div className={`w-24 h-24 bg-slate-800 rounded-xl overflow-hidden shrink-0 relative ${isSold ? 'grayscale' : ''}`}>
+                        {item.artwork.primary_image_url ? (
+                          <img 
+                            src={item.artwork.primary_image_url} 
+                            alt={item.artwork.title || 'Artwork'} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-600">No Image</div>
+                        )}
+                        {isSold && (
+                          <div className="absolute inset-0 bg-slate-950/60 flex items-center justify-center">
+                            <span className="text-[10px] font-black text-white px-2 py-1 bg-rose-600 rounded-md uppercase tracking-wider">Sold</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-black text-indigo-400">${item.artwork.price?.toLocaleString()}</span>
-                        <button 
-                          onClick={() => handleRemove(item.artwork_id)}
-                          className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex-1 flex flex-col justify-between py-1">
+                        <div>
+                          <h3 className={`font-bold text-sm line-clamp-1 ${isSold ? 'text-slate-500' : 'text-white'}`}>{item.artwork.title}</h3>
+                          <p className="text-xs text-slate-400 mt-1">{isSold ? 'No longer available' : 'Authentic Original'}</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className={`font-black ${isSold ? 'text-slate-600' : 'text-indigo-400'}`}>
+                            ${item.artwork.price?.toLocaleString()}
+                          </span>
+                          <button 
+                            onClick={() => handleRemove(item.artwork_id)}
+                            className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
 

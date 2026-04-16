@@ -6,8 +6,7 @@ import { useCartStore } from '@/lib/stores/cartStore'
 import CartDrawer from './CartDrawer'
 
 export default function CartIcon() {
-  const [isOpen, setIsOpen] = useState(false)
-  const { totalCount } = useCartStore()
+  const { totalCount, isOpen, setIsOpen } = useCartStore()
 
   return (
     <>
@@ -23,7 +22,7 @@ export default function CartIcon() {
         )}
       </button>
 
-      <CartDrawer isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <CartDrawer />
     </>
   )
 }

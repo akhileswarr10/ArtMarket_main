@@ -9,6 +9,7 @@ import {
   Heart, ArrowLeft, ImageIcon, Loader2, Sparkles,
   ShoppingBag, Trash2, ChevronRight, Palette, Eye
 } from 'lucide-react'
+import FavoriteButton from '@/components/FavoriteButton'
 import { useState, useEffect } from 'react'
 
 interface Artwork {
@@ -26,7 +27,6 @@ export default function FavoritesPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [session, setSession] = useState<any>(null)
-  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
@@ -39,18 +39,6 @@ export default function FavoritesPage() {
   })
 
   const favorites: Artwork[] = favoritesData?.favorites || []
-
-  const handleToggleFavorite = async (artworkId: string) => {
-    if (togglingId) return
-    setTogglingId(artworkId)
-    try {
-      await fetchApi(`/artworks/${artworkId}/favorite`, { method: 'POST' })
-      queryClient.invalidateQueries({ queryKey: ['favorites'] })
-      queryClient.invalidateQueries({ queryKey: ['my-favorites-count'] })
-    } finally {
-      setTogglingId(null)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -116,20 +104,12 @@ export default function FavoritesPage() {
                        </div>
                        
                        {/* Rapid Toggle Button */}
-                       <button 
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleToggleFavorite(artwork.id)
-                        }}
-                        disabled={togglingId === artwork.id}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-xl bg-black/40 backdrop-blur-md flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all z-10"
-                       >
-                         {togglingId === artwork.id ? (
-                           <Loader2 className="w-4 h-4 animate-spin" />
-                         ) : (
-                           <Heart className="w-4 h-4 fill-current" />
-                         )}
-                       </button>
+                       <div className="absolute top-3 right-3 z-10">
+                         <FavoriteButton 
+                            artworkId={artwork.id} 
+                            initialIsFavorited={true} 
+                          />
+                       </div>
                     </div>
                     
                     <div className="mt-4 px-1">

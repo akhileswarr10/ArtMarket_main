@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ShoppingBag, Truck, ShieldCheck, Loader2 } from 'lucide-react'
+import { ShoppingBag, Truck, ShieldCheck, Loader2, AlertTriangle, Trash2 } from 'lucide-react'
 import { useCartStore } from '@/lib/stores/cartStore'
-import { createCheckoutSession, confirmCheckout } from '@/lib/api/client'
+import { createCheckoutSession, confirmCheckout, removeFromCart } from '@/lib/api/client'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -36,9 +36,24 @@ export default function CheckoutPage() {
   }
 
   const total = items.reduce((acc, item) => acc + (item.artwork.price || 0), 0)
+  const soldItems = items.filter(item => item.artwork.status === 'sold')
+  const hasSoldItems = soldItems.length > 0
+
+  const handleRemoveSold = async (artworkId: string) => {
+    useCartStore.getState().removeItemOptimistic(artworkId)
+    try {
+      await removeFromCart(artworkId)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (hasSoldItems) {
+        setError('Please remove unavailable items from your cart to proceed.')
+        return
+    }
     setLoading(true)
     setError('')
     
@@ -55,7 +70,10 @@ export default function CheckoutPage() {
       // 2. Dummy payment confirmation
       await confirmCheckout(checkoutRes.order_id)
       
-      // 3. Success
+      // 3. Clear cart locally
+      useCartStore.getState().clearCart()
+
+      // 4. Success
       router.push(`/checkout/success?order_id=${checkoutRes.order_id}`)
     } catch (err: any) {
       console.error(err)
@@ -73,6 +91,16 @@ export default function CheckoutPage() {
             <h1 className="text-4xl font-black text-white mb-2">Checkout</h1>
             <p className="text-slate-400">Complete your acquisition securely</p>
           </header>
+
+          {hasSoldItems && (
+            <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm flex gap-3 items-center">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <div>
+                <p className="font-bold">Items Unavailable</p>
+                <p className="text-xs opacity-80">Some artworks in your cart have already been sold. Please remove them to complete your acquisition.</p>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm">
@@ -112,11 +140,13 @@ export default function CheckoutPage() {
 
             <button 
               type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 disabled:bg-indigo-800 disabled:opacity-50"
+              disabled={loading || hasSoldItems}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 disabled:bg-slate-800 disabled:text-slate-500 disabled:opacity-50 disabled:shadow-none"
             >
               {loading ? (
                 <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+              ) : hasSoldItems ? (
+                <><AlertTriangle className="w-5 h-5" /> Remove sold items to pay</>
               ) : (
                 <><ShieldCheck className="w-5 h-5" /> Pay Now (Dummy)</>
               )}
@@ -128,13 +158,34 @@ export default function CheckoutPage() {
           <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden p-6 space-y-6">
             <h2 className="font-bold text-white uppercase tracking-widest text-xs border-b border-white/10 pb-4">Order Summary</h2>
             
-            <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
-              {items.map(item => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-slate-300 line-clamp-1 pr-4">{item.artwork.title}</span>
-                  <span className="text-white font-medium">${(item.artwork.price||0).toLocaleString()}</span>
-                </div>
-              ))}
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              {items.map(item => {
+                const isSold = item.artwork.status === 'sold'
+                return (
+                  <div key={item.id} className={`space-y-2 border-b border-white/5 pb-4 last:border-0 ${isSold ? 'opacity-60' : ''}`}>
+                    <div className="flex justify-between items-start text-sm">
+                      <span className="text-slate-300 line-clamp-1 pr-4">{item.artwork.title}</span>
+                      <span className="text-white font-medium shrink-0">
+                        ${(item.artwork.price||0).toLocaleString()}
+                      </span>
+                    </div>
+                    {isSold ? (
+                      <div className="flex items-center justify-between">
+                         <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest bg-rose-500/10 px-2 py-0.5 rounded">Sold Out</span>
+                         <button 
+                          onClick={() => handleRemoveSold(item.artwork_id)}
+                          className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-white transition-colors"
+                         >
+                           <Trash2 className="w-3 h-3" />
+                           Remove
+                         </button>
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-slate-500 uppercase tracking-widest">Available</div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
 
             <div className="space-y-3 pt-6 border-t border-white/5 text-sm">
