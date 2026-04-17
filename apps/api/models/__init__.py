@@ -4,7 +4,7 @@ from sqlalchemy import (
     String, Text, Boolean, Integer, Numeric, TIMESTAMP,
     ForeignKey, UniqueConstraint, CheckConstraint, Index, func
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB, TSVECTOR
+from sqlalchemy.dialects.postgresql import UUID, JSONB, TSVECTOR, ARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -27,6 +27,7 @@ class User(Base):
     artist_profile: Mapped["ArtistProfile | None"] = relationship("ArtistProfile", back_populates="user", uselist=False)
     buyer_profile: Mapped["BuyerProfile | None"] = relationship("BuyerProfile", back_populates="user", uselist=False)
     artworks: Mapped[list["Artwork"]] = relationship("Artwork", back_populates="artist", foreign_keys="Artwork.artist_id")
+    notifications: Mapped[list["Notification"]] = relationship("Notification", cascade="all, delete-orphan")
 
 
 class ArtistProfile(Base):
@@ -102,11 +103,21 @@ class Artwork(Base):
     updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
     deleted_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 
+    ai_title_suggestion: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    ai_description_suggestion: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    ai_style_suggestion: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    ai_medium_suggestion: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    ai_price_suggestion: Mapped[float | None] = mapped_column(Numeric(10, 2), nullable=True)
+    ai_price_confidence: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    ai_tags_suggestion: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
+    ai_generated_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+
     artist: Mapped["User"] = relationship("User", back_populates="artworks", foreign_keys=[artist_id])
     category: Mapped["Category | None"] = relationship("Category", back_populates="artworks")
     images: Mapped[list["ArtworkImage"]] = relationship("ArtworkImage", back_populates="artwork", cascade="all, delete-orphan")
     artwork_tags: Mapped[list["ArtworkTag"]] = relationship("ArtworkTag", back_populates="artwork", cascade="all, delete-orphan")
     favorites: Mapped[list["Favorite"]] = relationship("Favorite", back_populates="artwork")
+    ai_jobs: Mapped[list["AIJob"]] = relationship("AIJob", back_populates="artwork", cascade="all, delete-orphan")
 
     __table_args__ = (
         CheckConstraint("status IN ('draft', 'published', 'sold', 'archived')", name='artworks_status_check'),
@@ -169,6 +180,7 @@ class AuditLog(Base):
     old_data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     new_data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     ip_address: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
 class Order(Base):
     __tablename__ = "orders"
@@ -190,3 +202,33 @@ class Order(Base):
         Index("idx_orders_buyer_id", "buyer_id"),
         Index("idx_orders_artwork_id", "artwork_id"),
     )
+
+
+class AIJob(Base):
+    __tablename__ = "ai_jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    artwork_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("artworks.id", ondelete="CASCADE"), nullable=False)
+    job_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="queued")
+    celery_task_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    result: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer(), nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    artwork: Mapped["Artwork"] = relationship("Artwork", back_populates="ai_jobs")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    type: Mapped[str] = mapped_column(String(50), nullable=False)
+    title: Mapped[str] = mapped_column(Text(), nullable=False)
+    body: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    is_read: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())

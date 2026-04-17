@@ -29,7 +29,7 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
 
   const { data: artworksData, isLoading } = useQuery({
     queryKey: ['my-artworks', user?.id],
-    queryFn: () => fetchApi('/artworks/me'),
+    queryFn: () => fetchApi('/artworks/mine'),
     enabled: !!session,
   })
 

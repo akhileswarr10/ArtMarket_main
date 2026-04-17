@@ -265,12 +265,23 @@ async def confirm_image_upload(
     artwork_id: UUID,
     body: ImageConfirmRequest,
     user: RequiredArtist,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     image_repo = ArtworkImageRepository(db)
     image = await image_repo.confirm(body.image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
+        
+    from tasks.ai import run_captioning, run_pricing, create_job_record
+    
+    # Pre-create the job IDs so they are inserted into DB, then background them.
+    caption_job_id = await create_job_record(str(artwork_id), "captioning")
+    price_job_id = await create_job_record(str(artwork_id), "pricing")
+    
+    background_tasks.add_task(run_captioning, caption_job_id, str(artwork_id), image.storage_path)
+    background_tasks.add_task(run_pricing, price_job_id, str(artwork_id))
+    
     signed_url = _generate_signed_url(image.storage_path)
     return _build_image_response(image, signed_url)
 

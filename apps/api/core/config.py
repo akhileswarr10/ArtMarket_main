@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # App
     DEBUG: bool = False
     WEBHOOK_SECRET: str = ""        # Supabase Auth webhook secret (if configured)
+    REDIS_URL: str = "redis://localhost:6379"
+    HF_TOKEN: str = ""
 
     class Config:
         env_file = ".env"

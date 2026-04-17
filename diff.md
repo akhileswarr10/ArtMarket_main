@@ -98,15 +98,15 @@
 - Redis running
 
 ### Done When
-- [ ] Publishing an artwork creates an AIJob with status=queued
-- [ ] Celery worker picks up task within 5 seconds
-- [ ] BLIP-2 generates a caption for the uploaded image
-- [ ] Pricing suggestion is returned
-- [ ] AIJob.status transitions to `done`
-- [ ] Notification row is created for the artist
-- [ ] Artist's browser receives Realtime notification push without page refresh
-- [ ] AI suggestions appear in artist dashboard
-- [ ] Artist can apply suggestions (artwork fields update)
+- [x] Publishing an artwork creates an AIJob with status=queued
+- [x] Celery worker picks up task within 5 seconds
+- [x] BLIP-2 generates a caption for the uploaded image
+- [x] Pricing suggestion is returned
+- [x] AIJob.status transitions to `done`
+- [x] Notification row is created for the artist
+- [x] Artist's browser receives Realtime notification push without page refresh
+- [x] AI suggestions appear in artist dashboard
+- [x] Artist can apply suggestions (artwork fields update)
 
 ---
 
