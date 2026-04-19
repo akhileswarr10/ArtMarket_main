@@ -2,16 +2,30 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { fetchApi } from '@/lib/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
+import { fetchApi } from '@/lib/api/client'
 import { 
   Palette, User, Settings as SettingsIcon, LogOut, 
   Menu, X, Sparkles, MessageSquare, Bell, ShoppingBag,
   Package, Upload, Heart, CheckCircle
+  Menu, X, Sparkles, Bell, ShoppingBag,
+  Upload, Heart, CheckCheck
 } from 'lucide-react'
+import NotificationBell from './NotificationBell'
+import CartIcon from './CartIcon'
+import { useCartStore } from '@/lib/stores/cartStore'
 
+interface Notification {
+  id: string
+  type: string
+  title: string
+  body: string
+  is_read: boolean
+  created_at: string
+}
 
 export default function Navbar() {
   const supabase = createClient()
@@ -41,6 +55,11 @@ export default function Navbar() {
       setNotifications(prev => prev.filter(n => n.id !== id))
     } catch (e) {}
   }
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const notifRef = useRef<HTMLDivElement>(null)
+
+  const { setCart, isInitialized } = useCartStore()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -68,9 +87,45 @@ export default function Navbar() {
       return () => clearInterval(interval)
     }
   }, [session, polling])
+    if (session?.user && !isInitialized) {
+      const role = session.user.app_metadata?.role
+      if (role === 'buyer') {
+        import('@/lib/api/client').then(({ getCart }) => {
+            getCart().then(setCart).catch(console.error)
+        })
+      }
+    }
+  }, [session, isInitialized, setCart])
+  // Fetch notifications when session is available, poll every 30s
+  useEffect(() => {
+    if (!session) return
+    const fetchNotifs = async () => {
+      try {
+        const data = await fetchApi('/notifications?limit=10')
+        setNotifications(Array.isArray(data) ? data : (data.notifications || []))
+      } catch {}
+    }
+    fetchNotifs()
+    const interval = setInterval(fetchNotifs, 30000)
+    return () => clearInterval(interval)
+  }, [session])
+
+  const unreadCount = notifications.filter(n => !n.is_read).length
+
+  const handleOpenNotifs = async () => {
+    const wasOpen = notifOpen
+    setNotifOpen(prev => !prev)
+    if (!wasOpen && unreadCount > 0) {
+      try {
+        await fetchApi('/notifications/read-all', { method: 'PATCH' })
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+      } catch {}
+    }
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    setCart({ id: '', buyer_id: '', items: [], total: 0, created_at: '' }) // Clear cart on logout
     router.push('/login')
     router.refresh()
   }
@@ -86,8 +141,6 @@ export default function Navbar() {
     { name: 'Marketplace', href: '/artworks', icon: ShoppingBag, show: !role || role === 'buyer' },
   ].filter(link => link.show)
 
-
-  // Don't show navbar on login/register/onboard
   const hideNav = ['/login', '/register', '/onboard'].includes(pathname)
   if (hideNav) return null
 
@@ -131,6 +184,18 @@ export default function Navbar() {
                 <Bell className="w-5 h-5" />
                 {notifications.length > 0 && (
                   <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-slate-950" />
+          {session && role === 'buyer' && <CartIcon />}
+          {session && <NotificationBell userId={session.user.id} />}
+          {/* Notification Bell */}
+          {session && (
+            <div className="relative" ref={notifRef}>
+              <button 
+                onClick={handleOpenNotifs}
+                className="p-2 text-slate-400 hover:text-white transition-colors relative"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full border-2 border-slate-950 animate-pulse" />
                 )}
               </button>
 
@@ -138,6 +203,9 @@ export default function Navbar() {
                 {notificationsOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setNotificationsOpen(false)} />
+                {notifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setNotifOpen(false)} />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -161,6 +229,26 @@ export default function Navbar() {
                                 </button>
                               </div>
                               <p className="text-slate-400 text-xs line-clamp-2">{n.body}</p>
+                      className="absolute right-0 mt-3 w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-20 overflow-hidden"
+                    >
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                        <h3 className="text-sm font-bold text-white">Notifications</h3>
+                        <CheckCheck className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <div className="max-h-72 overflow-y-auto divide-y divide-white/5">
+                        {notifications.length === 0 ? (
+                          <div className="p-6 text-center text-slate-500 text-sm">No notifications yet</div>
+                        ) : (
+                          notifications.map(n => (
+                            <div key={n.id} className={`px-4 py-3 hover:bg-white/5 transition-colors ${!n.is_read ? 'bg-indigo-500/5' : ''}`}>
+                              <div className="flex items-start gap-3">
+                                <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${!n.is_read ? 'bg-indigo-400' : 'bg-slate-700'}`} />
+                                <div>
+                                  <p className="text-sm font-semibold text-white">{n.title}</p>
+                                  {n.body && <p className="text-xs text-slate-400 mt-0.5">{n.body}</p>}
+                                  <p className="text-[10px] text-slate-600 mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                                </div>
+                              </div>
                             </div>
                           ))
                         )}
@@ -187,10 +275,7 @@ export default function Navbar() {
               <AnimatePresence>
                 {profileDropdownOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
-                      onClick={() => setProfileDropdownOpen(false)} 
-                    />
+                    <div className="fixed inset-0 z-10" onClick={() => setProfileDropdownOpen(false)} />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}

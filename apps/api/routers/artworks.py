@@ -12,7 +12,7 @@ from core.config import get_settings
 from repositories.artwork import ArtworkRepository, ArtworkImageRepository
 from schemas.artwork import (
     ArtworkCreate, ArtworkUpdate, ArtworkResponse, ArtworkListResponse,
-    PresignedUrlResponse, ImageConfirmRequest, ArtworkImageResponse
+    PresignedUrlResponse, ImageConfirmRequest, ArtworkImageResponse, BuyerInfo
 )
 
 router = APIRouter(prefix="/artworks", tags=["artworks"])
@@ -41,7 +41,7 @@ def _generate_signed_url(storage_path: str) -> Optional[str]:
         return None
 
 
-def _build_artwork_response(artwork) -> ArtworkResponse:
+def _build_artwork_response(artwork, buyer_info: Optional[BuyerInfo] = None) -> ArtworkResponse:
     confirmed_images = [img for img in artwork.images if img.is_confirmed]
     image_responses = []
     for img in confirmed_images:
@@ -63,6 +63,7 @@ def _build_artwork_response(artwork) -> ArtworkResponse:
         images=image_responses,
         tags=tags,
         is_favorited=getattr(artwork, "is_favorited", False),
+        buyer=buyer_info,
         created_at=artwork.created_at,
         updated_at=artwork.updated_at,
     )
@@ -87,7 +88,7 @@ async def create_artwork(
     return _build_artwork_response(artwork)
 
 
-@router.get("/mine", response_model=ArtworkListResponse)
+@router.get("/me", response_model=ArtworkListResponse)
 async def get_my_artworks(
     status_filter: Optional[str] = None,
     skip: int = 0,
@@ -151,18 +152,44 @@ async def get_artwork(
         is_buyer = False
         if user:
             from sqlalchemy import select
-            from models import Order
+            from models import Order, OrderItem
             order_res = await db.execute(
-                select(Order).where(Order.artwork_id == artwork.id, Order.buyer_id == user.id)
+                select(Order).join(OrderItem).where(OrderItem.artwork_id == artwork.id, Order.buyer_id == user.id)
             )
             if order_res.scalar_one_or_none():
                 is_buyer = True
         
         if not user or (str(artwork.artist_id) != str(user.id) and user.role != "admin" and not is_buyer):
             raise HTTPException(status_code=404, detail="Artwork not found")
-            
-        if not user or (str(artwork.artist_id) != str(user.id) and user.role != "admin"):
-            raise HTTPException(status_code=404, detail="Artwork not found")
+    
+    # Fetch buyer info if sold and authorized
+    buyer_info = None
+    if artwork.status == "sold" and user and (str(artwork.artist_id) == str(user.id) or user.role == "admin"):
+        from sqlalchemy import select
+        from models import Order, OrderItem
+        from sqlalchemy.orm import selectinload
+        # Join User through Order and OrderItem
+        stmt = (
+            select(User)
+            .join(Order, User.id == Order.buyer_id)
+            .join(OrderItem, Order.id == OrderItem.order_id)
+            .where(OrderItem.artwork_id == artwork.id, Order.status == "paid")
+            .limit(1)
+        )
+        res = await db.execute(stmt)
+        buyer = res.scalar_one_or_none()
+        if buyer:
+            buyer_info = BuyerInfo(
+                id=buyer.id,
+                display_name=buyer.email.split('@')[0], # Fallback if no profile
+                email=buyer.email
+            )
+            # Try to get display name from profile if available
+            from models import BuyerProfile
+            stmt_p = select(BuyerProfile).where(BuyerProfile.user_id == buyer.id)
+            profile = (await db.execute(stmt_p)).scalar_one_or_none()
+            if profile:
+                buyer_info.display_name = profile.display_name
     
     # Check if favorited for current user
     if user:
@@ -172,7 +199,7 @@ async def get_artwork(
             artwork.is_favorited = True
             
     background_tasks.add_task(_increment_views_background, artwork_id)
-    return _build_artwork_response(artwork)
+    return _build_artwork_response(artwork, buyer_info=buyer_info)
 
 
 @router.patch("/{artwork_id}", response_model=ArtworkResponse)
@@ -267,12 +294,23 @@ async def confirm_image_upload(
     artwork_id: UUID,
     body: ImageConfirmRequest,
     user: RequiredArtist,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     image_repo = ArtworkImageRepository(db)
     image = await image_repo.confirm(body.image_id)
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
+        
+    from tasks.ai import run_captioning, run_pricing, create_job_record
+    
+    # Pre-create the job IDs so they are inserted into DB, then background them.
+    caption_job_id = await create_job_record(str(artwork_id), "captioning")
+    price_job_id = await create_job_record(str(artwork_id), "pricing")
+    
+    background_tasks.add_task(run_captioning, caption_job_id, str(artwork_id), image.storage_path)
+    background_tasks.add_task(run_pricing, price_job_id, str(artwork_id))
+    
     signed_url = _generate_signed_url(image.storage_path)
     return _build_image_response(image, signed_url)
 

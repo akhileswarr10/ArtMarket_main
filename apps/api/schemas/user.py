@@ -11,6 +11,8 @@ class ArtistProfileResponse(BaseModel):
     website_url: Optional[str] = None
     is_verified: bool
     address: Optional[dict] = None
+    verification_status: Optional[str] = None
+    verification_notes: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

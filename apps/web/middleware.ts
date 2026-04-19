@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const secureRoutes = ['/dashboard', '/onboard', '/artworks/upload']
+  const secureRoutes = ['/dashboard', '/onboard', '/artworks/upload', '/admin']
   const isSecure = secureRoutes.some(path => request.nextUrl.pathname.startsWith(path))
 
   if (isSecure && !user) {
@@ -63,6 +63,8 @@ export async function middleware(request: NextRequest) {
         url.pathname = '/artist/dashboard'
       } else if (role === 'buyer') {
         url.pathname = '/buyer/dashboard'
+      } else if (role === 'admin') {
+        url.pathname = '/admin/dashboard'
       } else {
         url.pathname = '/onboard'
       }

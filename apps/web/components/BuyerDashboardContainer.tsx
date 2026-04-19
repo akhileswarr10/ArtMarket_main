@@ -11,6 +11,7 @@ import {
   Settings, Star, ChevronRight, ImageIcon, SlidersHorizontal,
   Layers, Sparkles, X, Filter, Loader2
 } from 'lucide-react'
+import FavoriteButton from './FavoriteButton'
 
 interface Artwork {
   id: string
@@ -32,7 +33,6 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
   const user = session?.user
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
-  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   const { data: artworksData, isLoading: artworksLoading } = useQuery({
     queryKey: ['artworks', user?.id, search],
@@ -42,7 +42,7 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
 
   const { data: ordersData } = useQuery({
     queryKey: ['my-purchases-count', user?.id],
-    queryFn: () => fetchApi('/orders/mine?limit=1'),
+    queryFn: () => fetchApi('/orders?limit=1'),
     enabled: !!session,
   })
 
@@ -63,20 +63,6 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setSearch(searchInput)
-  }
-
-  const handleToggleFavorite = async (artworkId: string) => {
-    if (togglingId) return
-    setTogglingId(artworkId)
-    try {
-      await fetchApi(`/artworks/${artworkId}/favorite`, { method: 'POST' })
-      queryClient.invalidateQueries({ queryKey: ['artworks'] })
-      queryClient.invalidateQueries({ queryKey: ['my-favorites-count'] })
-    } catch (error) {
-       console.error("Failed to toggle favorite", error)
-    } finally {
-      setTogglingId(null)
-    }
   }
 
   return (
@@ -174,24 +160,12 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                       )}
                       
                       {/* Heart Indicator */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleToggleFavorite(artwork.id)
-                        }}
-                        disabled={togglingId === artwork.id}
-                        className={`absolute top-3 right-3 p-2.5 rounded-xl backdrop-blur-md transition-all ${
-                          artwork.is_favorited 
-                            ? 'bg-rose-500 text-white' 
-                            : 'bg-black/40 text-white hover:text-rose-400'
-                        }`}
-                      >
-                        {togglingId === artwork.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Heart className={`w-4 h-4 ${artwork.is_favorited ? 'fill-current' : ''}`} />
-                        )}
-                      </button>
+                      <div className="absolute top-3 right-3 z-10">
+                        <FavoriteButton 
+                          artworkId={artwork.id} 
+                          initialIsFavorited={artwork.is_favorited} 
+                        />
+                      </div>
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                         <span className="text-xs font-bold text-white bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full">

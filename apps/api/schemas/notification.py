@@ -1,20 +1,22 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
+from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
 class NotificationResponse(BaseModel):
     id: UUID
-    user_id: UUID
     type: str
     title: str
     body: str
-    data: Optional[dict] = None
     is_read: bool
+    metadata_data: Optional[dict] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class NotificationListResponse(BaseModel):
-    notifications: list[NotificationResponse]
+    notifications: List[NotificationResponse]
+    total: int
+
+class UnreadCountResponse(BaseModel):
+    count: int

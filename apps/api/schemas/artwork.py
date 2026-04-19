@@ -23,6 +23,14 @@ class TagResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class BuyerInfo(BaseModel):
+    id: UUID
+    display_name: str
+    email: str
+
+    model_config = {"from_attributes": True}
+
+
 class ArtworkResponse(BaseModel):
     id: UUID
     artist_id: UUID
@@ -38,6 +46,7 @@ class ArtworkResponse(BaseModel):
     images: List[ArtworkImageResponse] = []
     tags: List[TagResponse] = []
     is_favorited: bool = False
+    buyer: Optional[BuyerInfo] = None
     created_at: datetime
     updated_at: datetime
 

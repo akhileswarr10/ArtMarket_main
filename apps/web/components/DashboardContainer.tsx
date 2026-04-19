@@ -27,6 +27,12 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
   const router = useRouter()
   const user = session?.user
 
+  const { data: userData } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => fetchApi('/users/me'),
+    enabled: !!session,
+  })
+
   const { data: artworksData, isLoading } = useQuery({
     queryKey: ['my-artworks', user?.id],
     queryFn: () => fetchApi('/artworks/mine'),
@@ -68,6 +74,35 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
             Upload Artwork
           </button>
         </div>
+
+        {/* Verification Banner */}
+        {userData?.artist_profile && userData.artist_profile.verification_status !== 'verified' && (
+          <div className="mb-8 p-6 bg-indigo-900/40 border border-indigo-500/30 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                 <Star className="w-6 h-6 text-indigo-400" />
+               </div>
+               <div>
+                 <h3 className="text-white font-bold text-lg">
+                   {userData.artist_profile.verification_status === 'pending' ? 'Verification Pending' : 'Become a Verified Artist'}
+                 </h3>
+                 <p className="text-slate-400 text-sm mt-1">
+                   {userData.artist_profile.verification_status === 'pending' 
+                     ? 'Your application is currently under review by our curation team.'
+                     : 'Earn a verified badge to show collectors your work is authentic and gain more visibility.'}
+                 </p>
+               </div>
+            </div>
+            {userData.artist_profile.verification_status !== 'pending' && (
+              <button
+                onClick={() => router.push('/artist/verification')}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20 text-sm shrink-0"
+              >
+                Apply for Verification
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">

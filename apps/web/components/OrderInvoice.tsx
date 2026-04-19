@@ -36,9 +36,9 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
           <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-4">Issued To</h3>
           <p className="font-bold text-lg">{userData?.display_name || 'Valued Collector'}</p>
           <p className="text-slate-500 text-sm mt-1">{userData?.email}</p>
-          {order.shipping_details?.address && (
+          {order.shipping_address && (
             <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-              {order.shipping_details.address}
+              {order.shipping_address.line1}, {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zip}, {order.shipping_address.country}
             </p>
           )}
         </div>
@@ -70,14 +70,15 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
           </tr>
         </thead>
         <tbody>
-          <tr className="border-b border-slate-100">
-            <td className="py-6">
-              <p className="font-bold text-lg text-slate-900">{order.artwork?.title || 'Original Artwork'}</p>
-              <p className="text-sm text-slate-500 mt-1">{order.artwork?.medium} • {order.artwork?.dimensions}</p>
-            </td>
-            <td className="py-6 font-bold text-right text-slate-900">1</td>
-            <td className="py-6 font-bold text-right text-slate-900">${order.amount.toLocaleString()}</td>
-          </tr>
+          {order.items?.map((item: any) => (
+            <tr key={item.id} className="border-b border-slate-100">
+              <td className="py-6">
+                <p className="font-bold text-lg text-slate-900">{item.title_snapshot || 'Original Artwork'}</p>
+              </td>
+              <td className="py-6 font-bold text-right text-slate-900">1</td>
+              <td className="py-6 font-bold text-right text-slate-900">${(item.price_paid || 0).toLocaleString()}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
@@ -86,7 +87,7 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
         <div className="w-64 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Subtotal</span>
-            <span className="font-bold text-slate-900">${order.amount.toLocaleString()}</span>
+            <span className="font-bold text-slate-900">${(order.total_amount || 0).toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Shipping</span>
@@ -94,7 +95,7 @@ export const OrderInvoice = React.forwardRef<HTMLDivElement, OrderInvoiceProps>(
           </div>
           <div className="pt-3 border-t-2 border-slate-900 flex justify-between items-baseline">
             <span className="text-xs font-black uppercase tracking-widest">Total Amount</span>
-            <span className="text-3xl font-black text-slate-900">${order.amount.toLocaleString()}</span>
+            <span className="text-3xl font-black text-slate-900">${(order.total_amount || 0).toLocaleString()}</span>
           </div>
         </div>
       </div>

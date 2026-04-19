@@ -28,23 +28,21 @@ function PurchaseContent() {
     if (!artwork) return
     setLoading(true)
     try {
-      await fetchApi('/orders', {
+      const res = await fetchApi('/cart/items', {
         method: 'POST',
         body: JSON.stringify({
           artwork_id: artwork.id,
-          amount: artwork.price,
-          shipping_details: {
-            // Simplified for now
-            status: 'paid'
-          }
         }),
       })
-      setStep('success')
-    } catch (err) {
-      console.error('Purchase failed:', err)
-      alert('Purchase failed. Please try again.')
-    } finally {
-      setLoading(false)
+      router.push('/checkout')
+    } catch (err: any) {
+      if (err.message?.includes('already in cart')) {
+        router.push('/checkout')
+      } else {
+        console.error('Add to cart failed:', err)
+        alert('Failed to add to cart. ' + (err.message || 'Please try again.'))
+        setLoading(false)
+      }
     }
   }
 

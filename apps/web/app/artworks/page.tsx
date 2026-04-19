@@ -10,6 +10,7 @@ import {
   Search, X, ImageIcon, ChevronLeft,
   ChevronRight, Sparkles, Heart, Loader2, Tag
 } from 'lucide-react'
+import FavoriteButton from '@/components/FavoriteButton'
 
 interface Artwork {
   id: string
@@ -37,7 +38,6 @@ function ArtworksContent() {
   const [style, setStyle] = useState('')
   const [activeTag, setActiveTag] = useState(() => searchParams.get('tag_name') || '')
   const [skip, setSkip] = useState(0)
-  const [togglingId, setTogglingId] = useState<string | null>(null)
   const limit = 12
 
   useEffect(() => {
@@ -248,6 +248,14 @@ function ArtworksContent() {
                             <Heart className={`w-3 h-3 ${artwork.is_favorited ? 'fill-current' : ''}`} />
                           )}
                         </button>
+                      
+                      {/* Heart Toggle */}
+                      <div className="absolute top-2 right-2 z-10">
+                         <FavoriteButton
+                            artworkId={artwork.id}
+                            initialIsFavorited={artwork.is_favorited}
+                            size="sm"
+                          />
                       </div>
                     </div>
                     <div className="p-3 flex flex-col gap-1.5 flex-1">
