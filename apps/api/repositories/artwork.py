@@ -47,6 +47,7 @@ class ArtworkRepository:
     async def get_published(self, skip: int = 0, limit: int = 20, category_id: uuid.UUID = None,
                              min_price: float = None, max_price: float = None,
                              medium: str = None, style: str = None, search: str = None,
+                             tag_name: str = None,
                              current_user_id: uuid.UUID = None) -> Tuple[List[Artwork], int]:
         query = self._base_query_with_relations().where(
             Artwork.status == "published",
@@ -75,6 +76,13 @@ class ArtworkRepository:
             tsquery = sqlfunc.plainto_tsquery("english", search)
             query = query.where(Artwork.search_vector.op("@@")(tsquery))
             count_query = count_query.where(Artwork.search_vector.op("@@")(tsquery))
+        if tag_name:
+            query = query.join(ArtworkTag, ArtworkTag.artwork_id == Artwork.id)\
+                         .join(Tag, Tag.id == ArtworkTag.tag_id)\
+                         .where(Tag.name.ilike(f"%{tag_name}%"))
+            count_query = count_query.join(ArtworkTag, ArtworkTag.artwork_id == Artwork.id)\
+                                     .join(Tag, Tag.id == ArtworkTag.tag_id)\
+                                     .where(Tag.name.ilike(f"%{tag_name}%"))
         
         total = (await self.db.execute(count_query)).scalar()
         result = await self.db.execute(query.order_by(Artwork.created_at.desc()).offset(skip).limit(limit))

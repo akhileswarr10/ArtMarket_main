@@ -50,7 +50,7 @@ export default function ArtworkCardManager({ artwork, index, onEdit, onDelete, o
         <p className="text-slate-400 text-sm font-medium mt-1 mb-4 flex items-center gap-2">
           {artwork.medium} 
           <span className="w-1 h-1 bg-slate-200 rounded-full" />
-          ${artwork.price?.toLocaleString()}
+          £{artwork.price?.toLocaleString()}
         </p>
 
         <div className="flex items-center gap-2">

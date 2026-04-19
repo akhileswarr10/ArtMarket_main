@@ -278,7 +278,7 @@ export default function ArtworkDetailPage() {
               </h1>
               <div className="flex items-center gap-6">
                 <p className="text-3xl font-black text-emerald-400 tracking-tighter">
-                  ${artwork.price?.toLocaleString()}
+                  £{artwork.price?.toLocaleString()}
                 </p>
                 <div className="h-4 w-px bg-white/10" />
                 <div className="flex items-center gap-2 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
@@ -292,6 +292,21 @@ export default function ArtworkDetailPage() {
               <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Curator's Note</h3>
               <p className="text-slate-300 leading-relaxed text-sm">{artwork.description}</p>
             </div>
+
+            {/* Tags */}
+            {artwork.tags && artwork.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {artwork.tags.map((tag: any) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => router.push(`/artworks?tag_name=${encodeURIComponent(tag.name)}`)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold rounded-lg hover:bg-indigo-500/25 hover:border-indigo-500/40 transition-all"
+                  >
+                    <span className="text-indigo-500/60">#</span>{tag.name}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               {[

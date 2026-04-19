@@ -115,6 +115,7 @@ async def list_artworks(
     medium: Optional[str] = None,
     style: Optional[str] = None,
     search: Optional[str] = None,
+    tag_name: Optional[str] = None,
     user: Optional[User] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
@@ -123,6 +124,7 @@ async def list_artworks(
         skip=skip, limit=limit, category_id=category_id,
         min_price=min_price, max_price=max_price,
         medium=medium, style=style, search=search,
+        tag_name=tag_name,
         current_user_id=user.id if user else None
     )
     return ArtworkListResponse(
@@ -286,3 +288,56 @@ async def delete_image(
     deleted = await image_repo.delete(image_id)
     if not deleted:
         raise HTTPException(status_code=404)
+
+
+from models import AIJob
+from schemas.ai import AIJobResponse, AIApplyRequest
+from ai_services.ai_pipeline import process_ai_job
+
+@router.get("/{artwork_id}/ai-suggestions", response_model=AIJobResponse)
+async def get_or_create_ai_suggestions(
+    artwork_id: UUID,
+    background_tasks: BackgroundTasks,
+    user: RequiredArtist,
+    db: AsyncSession = Depends(get_db),
+):
+    repo = ArtworkRepository(db)
+    artwork = await repo.get_by_id(artwork_id)
+    if not artwork or str(artwork.artist_id) != str(user.id):
+        raise HTTPException(status_code=404)
+        
+    from sqlalchemy import select
+    stmt = select(AIJob).where(AIJob.artwork_id == artwork_id).order_by(AIJob.created_at.desc())
+    res = await db.execute(stmt)
+    existing_job = res.scalars().first()
+    
+    if existing_job and existing_job.status in ("queued", "running"):
+        return existing_job
+        
+    # Create new job
+    job = AIJob(artwork_id=artwork_id, job_type="metadata_pricing")
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+    
+    background_tasks.add_task(process_ai_job, job.id)
+    return job
+
+@router.post("/{artwork_id}/ai-suggestions/apply", response_model=ArtworkResponse)
+async def apply_ai_suggestions(
+    artwork_id: UUID,
+    body: AIApplyRequest,
+    user: RequiredArtist,
+    db: AsyncSession = Depends(get_db),
+):
+    repo = ArtworkRepository(db)
+    artwork = await repo.get_by_id(artwork_id)
+    if not artwork or str(artwork.artist_id) != str(user.id):
+        raise HTTPException(status_code=404)
+        
+    data_to_update = body.model_dump(exclude_unset=True, exclude_none=True)
+    if not data_to_update:
+        return _build_artwork_response(artwork)
+        
+    artwork = await repo.update(artwork, data_to_update)
+    return _build_artwork_response(artwork)

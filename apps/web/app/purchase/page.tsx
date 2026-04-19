@@ -212,14 +212,14 @@ function PurchaseContent() {
                   <div>
                     <h3 className="font-bold text-white text-sm">{artwork.title}</h3>
                     <p className="text-xs text-slate-500 mt-1">Authentic original artwork</p>
-                    <p className="text-sm font-black text-indigo-400 mt-2">${artwork.price?.toLocaleString() || '0'}</p>
+                    <p className="text-sm font-black text-indigo-400 mt-2">£{artwork.price?.toLocaleString() || '0'}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 pt-6 border-t border-white/5 text-sm">
                   <div className="flex justify-between text-slate-400">
                     <span>Subtotal</span>
-                    <span className="text-white">${artwork.price?.toLocaleString() || '0'}</span>
+                    <span className="text-white">£{artwork.price?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Shipping</span>
@@ -227,11 +227,11 @@ function PurchaseContent() {
                   </div>
                   <div className="flex justify-between text-slate-400">
                     <span>Insurance</span>
-                    <span className="text-white">$0.00</span>
+                    <span className="text-white">£0.00</span>
                   </div>
                   <div className="pt-3 border-t border-white/5 flex justify-between items-baseline">
                     <span className="font-bold text-white">Total</span>
-                    <span className="text-2xl font-black text-indigo-500">${artwork.price?.toLocaleString() || '0'}</span>
+                    <span className="text-2xl font-black text-indigo-500">£{artwork.price?.toLocaleString() || '0'}</span>
                   </div>
                 </div>
 

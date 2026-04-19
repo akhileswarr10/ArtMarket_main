@@ -137,7 +137,7 @@ export default function FavoritesPage() {
                        <div className="flex items-center justify-between mt-1">
                           <p className="text-[11px] text-slate-500">{artwork.medium || 'Medium'}</p>
                           {artwork.price && (
-                            <p className="text-xs font-black text-emerald-400">${artwork.price.toLocaleString()}</p>
+                            <p className="text-xs font-black text-emerald-400">£{artwork.price.toLocaleString()}</p>
                           )}
                        </div>
                     </div>

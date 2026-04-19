@@ -203,7 +203,7 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                        <h4 className="font-bold text-white truncate mb-1">{artwork.title}</h4>
                        <div className="flex items-center justify-between">
                          <p className="text-xs text-slate-500 uppercase tracking-widest font-bold font-mono py-1">{artwork.medium || 'Untitled'}</p>
-                         <p className="text-sm font-black text-emerald-400">${artwork.price?.toLocaleString()}</p>
+                         <p className="text-sm font-black text-emerald-400">£{artwork.price?.toLocaleString()}</p>
                        </div>
                     </div>
                   </motion.div>

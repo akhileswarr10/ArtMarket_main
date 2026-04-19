@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import get_settings
-from routers import users, artworks, categories, tags, favorites, admin, orders
+from routers import users, artworks, categories, tags, favorites, admin, orders, ai, notifications
 
 settings = get_settings()
 
@@ -34,3 +34,5 @@ app.include_router(tags.router, prefix="/api")
 app.include_router(favorites.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
+app.include_router(ai.router, prefix="/api")
+app.include_router(notifications.router, prefix="/api")

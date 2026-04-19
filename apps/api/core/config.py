@@ -1,6 +1,6 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 import json
 
 class Settings(BaseSettings):
@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # App
     DEBUG: bool = False
     WEBHOOK_SECRET: str = ""        # Supabase Auth webhook secret (if configured)
+    HF_TOKEN: str = ""              # API Key for Hugging Face Inference API (legacy)
+    GEMINI_API_KEY: str = ""        # Google Gemini API Key
+    GROQ_API_KEY: str = ""          # Groq API Key (fast, free — recommended)
 
     class Config:
         env_file = ".env"

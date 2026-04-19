@@ -7,7 +7,7 @@ import { fetchApi } from '@/lib/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Upload, Image as ImageIcon, Loader2, CheckCircle, AlertCircle,
-  ArrowLeft, DollarSign, Palette, Tag, X, Plus, Send
+  ArrowLeft, PoundSterling, Palette, Tag, X, Plus, Send, Bot, Sparkles
 } from 'lucide-react'
 
 type Status = 'idle' | 'uploading' | 'confirming' | 'success' | 'error'
@@ -29,6 +29,10 @@ export default function ArtworkUploadPage() {
   const [error, setError] = useState('')
   const [progress, setProgress] = useState(0)
   const [dragOver, setDragOver] = useState(false)
+  const [draftId, setDraftId] = useState<string | null>(null)
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false)
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -51,8 +55,87 @@ export default function ArtworkUploadPage() {
     if (file) handleFileSelect(file)
   }, [])
 
-  const handleSubmit = async (publish: boolean = false) => {
+  const handleAIFill = async () => {
     if (!selectedFile) {
+      setError('Please select an image first to generate AI suggestions')
+      return
+    }
+
+    try {
+      setIsGeneratingAI(true)
+      setError('')
+      let currentDraftId = draftId
+
+      // Upload image and create draft if we haven't yet
+      if (!currentDraftId) {
+        setStatus('uploading')
+        setProgress(20)
+        const artwork = await fetchApi('/artworks', {
+          method: 'POST',
+          body: JSON.stringify({ title: title || 'Untitled Draft' })
+        })
+        currentDraftId = artwork.id
+        setDraftId(currentDraftId)
+        setProgress(40)
+
+        const presignData = await fetchApi(`/artworks/${currentDraftId}/images/presign`, { method: 'POST' })
+        setProgress(60)
+        
+        await fetch(presignData.signed_url, {
+          method: 'PUT',
+          body: selectedFile,
+          headers: { 'Content-Type': selectedFile.type },
+        })
+        setProgress(80)
+
+        await fetchApi(`/artworks/${currentDraftId}/images/confirm`, {
+          method: 'POST',
+          body: JSON.stringify({ image_id: presignData.image_id }),
+        })
+        setProgress(100)
+      }
+      
+      setStatus('idle')
+
+      // Trigger AI
+      const initialJob = await fetchApi(`/artworks/${currentDraftId}/ai-suggestions`)
+      let jobId = initialJob.id
+      let jobStatus = initialJob.status
+      
+      while (jobStatus === 'queued' || jobStatus === 'running') {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        const job = await fetchApi(`/ai/jobs/${jobId}`)
+        jobStatus = job.status
+        if (jobStatus === 'done') {
+          if (job.result) {
+            setTitle(job.result.title || title)
+            setDescription(job.result.description || description)
+            if (job.result.suggested_price) {
+              setPrice(job.result.suggested_price.toString())
+            }
+            if (job.result.detected_style) {
+              setStyle(job.result.detected_style)
+            }
+            if (job.result.tags && Array.isArray(job.result.tags)) {
+              setTags(job.result.tags)
+            }
+          }
+          break
+        } else if (jobStatus === 'failed') {
+          throw new Error(job.error || 'AI Generation Failed')
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate AI suggestions')
+      setStatus('idle')
+    } finally {
+      setIsGeneratingAI(false)
+      setStatus('idle')
+    }
+  }
+
+  const handleSubmit = async (publish: boolean = false) => {
+    if (!selectedFile && !draftId) {
       setError('Please select an image')
       return
     }
@@ -72,46 +155,68 @@ export default function ArtworkUploadPage() {
     }
 
     try {
-      // Step 1: Create artwork draft
-      const artwork = await fetchApi('/artworks', {
-        method: 'POST',
-        body: JSON.stringify({
-          title,
-          description: description || undefined,
-          medium: medium || undefined,
-          style: style || undefined,
-          dimensions: dimensions || undefined,
-          price: price ? parseFloat(price) : undefined,
-        }),
-      })
-      setProgress(40)
+      let finalArtworkId = draftId
 
-      // Step 2: Get presigned upload URL
-      const presignData = await fetchApi(`/artworks/${artwork.id}/images/presign`, {
-        method: 'POST',
-      })
-      setProgress(60)
+      if (finalArtworkId) {
+        // If we already have a draft, we just PATCH the form data
+        setProgress(60)
+        await fetchApi(`/artworks/${finalArtworkId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            title,
+            description: description || undefined,
+            medium: medium || undefined,
+            style: style || undefined,
+            dimensions: dimensions || undefined,
+            price: price ? parseFloat(price) : undefined,
+          }),
+        })
+        setProgress(90)
+      } else {
+        // Normal flow
+        // Step 1: Create artwork draft
+        const artwork = await fetchApi('/artworks', {
+          method: 'POST',
+          body: JSON.stringify({
+            title,
+            description: description || undefined,
+            medium: medium || undefined,
+            style: style || undefined,
+            dimensions: dimensions || undefined,
+            price: price ? parseFloat(price) : undefined,
+          }),
+        })
+        finalArtworkId = artwork.id
+        setProgress(40)
 
-      // Step 3: Upload directly to Supabase Storage
-      const uploadResp = await fetch(presignData.signed_url, {
-        method: 'PUT',
-        body: selectedFile,
-        headers: { 'Content-Type': selectedFile.type },
-      })
-      if (!uploadResp.ok) throw new Error('Failed to upload image to storage')
-      setProgress(80)
+        // Step 2: Get presigned upload URL
+        const presignData = await fetchApi(`/artworks/${finalArtworkId}/images/presign`, {
+          method: 'POST',
+        })
+        setProgress(60)
 
-      // Step 4: Confirm the upload
-      setStatus('confirming')
-      await fetchApi(`/artworks/${artwork.id}/images/confirm`, {
-        method: 'POST',
-        body: JSON.stringify({ image_id: presignData.image_id }),
-      })
-      setProgress(90)
+        // Step 3: Upload directly to Supabase Storage
+        const uploadResp = await fetch(presignData.signed_url, {
+          method: 'PUT',
+          body: selectedFile!, // guaranteed non-null if no draftId
+          headers: { 'Content-Type': selectedFile!.type },
+        })
+        if (!uploadResp.ok) throw new Error('Failed to upload image to storage')
+        setProgress(80)
+
+        // Step 4: Confirm the upload
+        setStatus('confirming')
+        await fetchApi(`/artworks/${finalArtworkId}/images/confirm`, {
+          method: 'POST',
+          body: JSON.stringify({ image_id: presignData.image_id }),
+        })
+        setProgress(90)
+      }
 
       // Step 5: Publish if requested
       if (publish) {
-        await fetchApi(`/artworks/${artwork.id}/publish`, { method: 'PATCH' })
+        setStatus('confirming')
+        await fetchApi(`/artworks/${finalArtworkId}/publish`, { method: 'PATCH' })
       }
       setProgress(100)
       setStatus('success')
@@ -238,9 +343,21 @@ export default function ArtworkUploadPage() {
               )}
             </AnimatePresence>
 
+            <button
+              onClick={handleAIFill}
+              disabled={isGeneratingAI || status === 'uploading' || status === 'confirming'}
+              className="w-full mb-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 disabled:opacity-50 text-sm"
+            >
+              {isGeneratingAI ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing Image & Filling Details...</>
+              ) : (
+                <><Sparkles className="w-4 h-4" /> Autofill with AI</>
+              )}
+            </button>
+
             {[
               { label: 'Title *', value: title, set: setTitle, placeholder: 'e.g. Sunset Over the Valley', type: 'text' },
-              { label: 'Price (USD)', value: price, set: setPrice, placeholder: 'e.g. 1200', type: 'number', icon: DollarSign },
+              { label: 'Price (GBP £)', value: price, set: setPrice, placeholder: 'e.g. 950', type: 'number', icon: PoundSterling },
               { label: 'Medium', value: medium, set: setMedium, placeholder: 'e.g. Oil on Canvas', type: 'text', icon: Palette },
               { label: 'Style', value: style, set: setStyle, placeholder: 'e.g. Impressionism', type: 'text' },
               { label: 'Dimensions', value: dimensions, set: setDimensions, placeholder: 'e.g. 24" × 36"', type: 'text' },
@@ -269,6 +386,36 @@ export default function ArtworkUploadPage() {
                 rows={3}
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 focus:border-indigo-500/40 focus:ring-2 focus:ring-indigo-500/10 rounded-xl outline-none transition-all text-white placeholder:text-slate-600 text-sm resize-none"
               />
+            </div>
+
+            {/* Tags */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3 h-3" />Tags</label>
+              <div className="flex flex-wrap gap-2 p-3 bg-white/5 border border-white/10 focus-within:border-indigo-500/40 rounded-xl min-h-[48px]">
+                {tags.map((tag, i) => (
+                  <span key={i} className="flex items-center gap-1 px-2.5 py-1 bg-indigo-500/15 text-indigo-300 text-xs font-semibold rounded-lg border border-indigo-500/20">
+                    #{tag}
+                    <button onClick={() => setTags(tags.filter((_, idx) => idx !== i))} className="text-indigo-400/60 hover:text-rose-400 transition-colors">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => {
+                    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                      e.preventDefault()
+                      const newTag = tagInput.trim().toLowerCase().replace(/^#/, '')
+                      if (!tags.includes(newTag)) setTags([...tags, newTag])
+                      setTagInput('')
+                    }
+                  }}
+                  placeholder={tags.length === 0 ? 'Add tags (press Enter or ,)' : '+ more...'}
+                  className="flex-1 min-w-[120px] bg-transparent text-white text-xs outline-none placeholder:text-slate-600"
+                />
+              </div>
             </div>
 
             {/* Actions */}

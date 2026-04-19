@@ -29,7 +29,7 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
 
   const { data: artworksData, isLoading } = useQuery({
     queryKey: ['my-artworks', user?.id],
-    queryFn: () => fetchApi('/artworks/me'),
+    queryFn: () => fetchApi('/artworks/mine'),
     enabled: !!session,
   })
 
@@ -148,7 +148,7 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
                         {artwork.status}
                       </span>
                       {artwork.price && (
-                        <span className="text-sm font-bold text-white mr-2">${artwork.price.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-white mr-2">£{artwork.price.toLocaleString()}</span>
                       )}
                       
                       {/* Action Buttons */}

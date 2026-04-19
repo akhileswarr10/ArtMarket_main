@@ -4,11 +4,12 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { fetchApi } from '@/lib/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Palette, User, Settings as SettingsIcon, LogOut, 
   Menu, X, Sparkles, MessageSquare, Bell, ShoppingBag,
-  Package, Upload, Heart
+  Package, Upload, Heart, CheckCircle
 } from 'lucide-react'
 
 
@@ -20,6 +21,26 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [polling, setPolling] = useState(false)
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await fetchApi('/notifications?unread_only=true')
+      setNotifications(data.notifications || [])
+    } catch (e) {
+      // Ignore errors for polling
+    }
+  }
+
+  const markNotifRead = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    try {
+      await fetchApi(`/notifications/${id}/read`, { method: 'PATCH' })
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    } catch (e) {}
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -38,6 +59,15 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [supabase])
+
+  useEffect(() => {
+    if (session && !polling) {
+      fetchNotifications()
+      setPolling(true)
+      const interval = setInterval(fetchNotifications, 10000)
+      return () => clearInterval(interval)
+    }
+  }, [session, polling])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -92,10 +122,55 @@ export default function Navbar() {
 
         {/* User Menu */}
         <div className="flex items-center gap-4">
-          <button className="p-2 text-slate-400 hover:text-white transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-slate-950" />
-          </button>
+          {session && (
+            <div className="relative">
+              <button 
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="p-2 text-slate-400 hover:text-white transition-colors relative"
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-slate-950" />
+                )}
+              </button>
+
+              <AnimatePresence>
+                {notificationsOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setNotificationsOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-3 w-80 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-20 backdrop-blur-xl overflow-hidden"
+                    >
+                      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                        <h3 className="text-white font-bold text-sm">Notifications</h3>
+                        <span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full">{notifications.length} New</span>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.length === 0 ? (
+                          <div className="p-6 text-center text-slate-400 text-sm">No new notifications</div>
+                        ) : (
+                          notifications.map((n: any) => (
+                            <div key={n.id} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors group relative cursor-pointer" onClick={(e) => markNotifRead(n.id, e)}>
+                              <div className="flex justify-between items-start mb-1">
+                                <h4 className="text-slate-200 text-sm font-bold truncate pr-6">{n.title}</h4>
+                                <button className="absolute top-4 right-4 text-slate-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <CheckCircle className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <p className="text-slate-400 text-xs line-clamp-2">{n.body}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {session ? (
             <div className="relative">
