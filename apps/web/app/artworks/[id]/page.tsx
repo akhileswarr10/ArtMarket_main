@@ -308,7 +308,7 @@ export default function ArtworkDetailPage() {
               </h1>
               <div className="flex items-center gap-6">
                 <p className="text-3xl font-black text-emerald-400 tracking-tighter">
-                  £{artwork.price?.toLocaleString()}
+                  {artwork.price !== null ? `£${artwork.price.toLocaleString()}` : 'Price Pending'}
                 </p>
                 <div className="h-4 w-px bg-white/10" />
                 <div className="flex items-center gap-2 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
@@ -320,7 +320,7 @@ export default function ArtworkDetailPage() {
 
             <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8">
               <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Curator's Note</h3>
-              <p className="text-slate-300 leading-relaxed text-sm">{artwork.description}</p>
+              <p className="text-slate-300 leading-relaxed text-sm">{artwork.description || 'No description provided.'}</p>
             </div>
 
             {/* Tags */}
@@ -340,8 +340,8 @@ export default function ArtworkDetailPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: 'Medium', value: artwork.medium, icon: Palette },
-                { label: 'Dimensions', value: artwork.dimensions, icon: Maximize2 },
+                { label: 'Medium', value: artwork.medium || 'Not specified', icon: Palette },
+                { label: 'Dimensions', value: artwork.dimensions || 'Not specified', icon: Maximize2 },
               ].map(({ label, value, icon: Icon }) => (
                 <div key={label} className="bg-white/2 border border-white/5 rounded-2xl p-5">
                   <Icon className="w-4 h-4 text-slate-600 mb-3" />
@@ -385,11 +385,13 @@ export default function ArtworkDetailPage() {
                   />
                   <button
                     onClick={handleAddToCart}
-                    disabled={isAdding || artwork.status === 'sold'}
+                    disabled={isAdding || artwork.status !== 'published' || artwork.price === null}
                     className={`flex-1 py-4 font-black rounded-2xl transition-all flex items-center justify-center gap-2 ${
                       added 
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                        : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                        : (artwork.status !== 'published' || artwork.price === null)
+                          ? 'bg-white/5 text-slate-600 border border-white/10 cursor-not-allowed'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                     }`}
                   >
                     {isAdding ? (
@@ -399,11 +401,15 @@ export default function ArtworkDetailPage() {
                     ) : (
                       <ShoppingCart className="w-4 h-4" />
                     )}
-                    {added ? 'Added to Cart' : 'Add to Cart'}
+                    {added ? 'Added' : 
+                     artwork.status === 'draft' ? 'Draft Only' :
+                     artwork.price === null ? 'Price Pending' :
+                     'Add to Cart'}
                   </button>
                   <button
+                    disabled={artwork.status !== 'published' || artwork.price === null}
                     onClick={() => router.push(`/purchase?artworkId=${artwork.id}`)}
-                    className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group"
+                    className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Buy Now
                     <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />

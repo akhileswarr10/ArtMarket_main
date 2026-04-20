@@ -1,11 +1,13 @@
 import asyncio
-from sqlalchemy import text
 from core.database import engine
+from sqlalchemy import text
 
-async def check(): 
-    async with engine.connect() as conn:
-        result = await conn.execute(text("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'"))
-        print("Tables:", [row[0] for row in result])
+async def check_tables():
+    async with engine.begin() as conn:
+        result = await conn.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
+        tables = result.fetchall()
+        print('Tables in public schema:')
+        for t in tables:
+            print(f'- {t[0]}')
 
-if __name__ == "__main__":
-    asyncio.run(check())
+asyncio.run(check_tables())

@@ -27,8 +27,8 @@ class AIJobStatus(BaseModel):
     job_type: str
     status: str
     result: Optional[dict] = None
-    error_message: Optional[str] = None
-    attempts: int
+    error: Optional[str] = None
+    retries: int
     created_at: datetime
     updated_at: datetime
 

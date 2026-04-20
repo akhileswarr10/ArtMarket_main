@@ -54,6 +54,7 @@ async def generate_price_suggestion(
             temperature=0.4,
         )
         text = response.choices[0].message.content.strip()
+        print(f"DEBUG: Groq raw response: '{text}'")
         matches = re.findall(r"[-+]?\d*\.?\d+", text)
         if matches:
             return float(matches[0])

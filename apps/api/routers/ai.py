@@ -1,15 +1,23 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from core.database import get_db
 from core.deps import get_current_user, RequiredArtist
 from models import AIJob, User
-from schemas.ai import AIJobResponse
+from repositories.artwork import ArtworkRepository
+from repositories.ai_job import AIJobRepository
+from schemas.ai import (
+    AIJobResponse, ArtworkAIStatusResponse, AIJobStatus, 
+    MessageResponse, ApplyAISuggestionsRequest
+)
+from schemas.artwork import ArtworkResponse
+from routers.artworks import _build_artwork_response
 
-router = APIRouter(prefix="/ai", tags=["ai"])
+router = APIRouter(tags=["ai"])
 
-@router.get("/jobs/{job_id}", response_model=AIJobResponse)
+@router.get("/ai/jobs/{job_id}", response_model=AIJobResponse)
 async def get_ai_job(
     job_id: UUID,
     user: RequiredArtist,
@@ -19,28 +27,11 @@ async def get_ai_job(
     if not job:
         raise HTTPException(status_code=404, detail="AI job not found")
         
-    # Optional: check if the user is the owner of the artwork
-    # For now, if they have the ID, they can see it
     return job
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
-from typing import List
 
-from core.database import get_db
-from core.deps import get_current_user, RequiredArtist
-from repositories.artwork import ArtworkRepository
-from repositories.ai_job import AIJobRepository
-from schemas.ai import ArtworkAIStatusResponse, ApplyAISuggestionsRequest, MessageResponse, AIJobStatus
-from schemas.artwork import ArtworkResponse
-from routers.artworks import _build_artwork_response
-from models import User
-from tasks.ai import run_captioning, run_pricing
-
-router = APIRouter(prefix="/artworks", tags=["ai"])
 admin_router = APIRouter(prefix="/admin/ai-jobs", tags=["admin_ai"])
 
-@router.get("/{artwork_id}/ai-status", response_model=ArtworkAIStatusResponse)
+@router.get("/artworks/{artwork_id}/ai-status", response_model=ArtworkAIStatusResponse)
 async def get_ai_status(
     artwork_id: UUID,
     user: RequiredArtist,
@@ -87,15 +78,17 @@ async def retry_ai_jobs(
     if not images:
         raise HTTPException(status_code=400, detail="No images to process")
     
-    from tasks.ai import run_captioning, run_pricing, create_job_record
+    from ai_services.ai_pipeline import process_ai_job
     
-    caption_job_id = await create_job_record(str(artwork_id), "captioning")
-    price_job_id = await create_job_record(str(artwork_id), "pricing")
+    # Create a unified job record
+    job = AIJob(artwork_id=artwork_id, job_type="metadata_pricing")
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
     
-    background_tasks.add_task(run_captioning, caption_job_id, str(artwork_id), images[0].storage_path)
-    background_tasks.add_task(run_pricing, price_job_id, str(artwork_id))
+    background_tasks.add_task(process_ai_job, job.id)
 
-    return {"message": "AI jobs queued for retry"}
+    return {"message": "AI analysis queued"}
 
 @router.post("/{artwork_id}/apply-ai-suggestions", response_model=ArtworkResponse)
 async def apply_ai_suggestions(

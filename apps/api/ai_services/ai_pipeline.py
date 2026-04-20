@@ -11,13 +11,13 @@ from core.config import get_settings
 settings = get_settings()
 
 def _generate_signed_url(storage_path: str) -> str | None:
-    try:
-        result = supabase_admin.storage.from_(settings.SUPABASE_STORAGE_BUCKET).create_signed_url(
-            storage_path, expires_in=3600
-        )
-        return result.get("signedURL") or result.get("signedUrl")
-    except Exception:
-        return None
+    # Raise the exception so process_ai_job can capture the real error message
+    result = supabase_admin.storage.from_(settings.SUPABASE_STORAGE_BUCKET).create_signed_url(
+        storage_path, expires_in=3600
+    )
+    if isinstance(result, dict) and (result.get("error") or not (result.get("signedURL") or result.get("signedUrl"))):
+         raise Exception(f"Supabase Error: {result.get('error', 'No URL in response')}")
+    return result.get("signedURL") or result.get("signedUrl")
 
 async def process_ai_job(job_id: uuid.UUID):
     async with AsyncSessionLocal() as db:
@@ -45,10 +45,13 @@ async def process_ai_job(job_id: uuid.UUID):
             if not artwork_full or not artwork_full.images:
                 raise Exception("No images found for artwork")
             
-            # Use the primary image or first confirmed image
+            # Try to find a primary/confirmed image, fallback to any image if it's the first upload
             primary_img = next((img for img in artwork_full.images if img.is_confirmed), None)
+            if not primary_img and artwork_full.images:
+                primary_img = artwork_full.images[0]
+                
             if not primary_img:
-                raise Exception("No confirmed images found for artwork")
+                raise Exception("No images found for artwork to analyze")
 
             signed_url = _generate_signed_url(primary_img.storage_path)
             if not signed_url:
@@ -60,21 +63,25 @@ async def process_ai_job(job_id: uuid.UUID):
             detected_style = analysis.get("style") or artwork.style
             
             # 3. Pricing + Tags
+            # Tags come directly from the vision model — fall back to text tagger only if empty
+            tags = analysis.get("tags") or []
+            if not tags:
+                from ai_services.tagging.groq_tagger import generate_tags as _gen_tags
+                tags = await _gen_tags(
+                    caption=caption,
+                    medium=artwork.medium,
+                    style=detected_style
+                )
+
             price = await generate_price_suggestion(
                 caption=caption, 
                 medium=artwork.medium, 
                 style=detected_style, 
                 dimensions=artwork.dimensions
             )
-            tags = await generate_tags(
-                caption=caption,
-                medium=artwork.medium,
-                style=detected_style
-            )
 
-            # 4. Save result — title limited to 3 words to avoid overflow
-            title_words = caption.split()[:3] if caption else []
-            suggested_title = " ".join(title_words).rstrip(".,;:").title() if title_words else "Untitled"
+            # 4. Save result — use AI-generated title directly
+            suggested_title = analysis.get("title") or "Untitled"
 
             job.result = {
                 "title": suggested_title,
@@ -85,13 +92,22 @@ async def process_ai_job(job_id: uuid.UUID):
             }
             job.status = "done"
 
+            # Persist results to artwork for easier polling
+            artwork.ai_title_suggestion = suggested_title
+            artwork.ai_description_suggestion = caption
+            artwork.ai_style_suggestion = detected_style
+            artwork.ai_price_suggestion = price
+            artwork.ai_tags_suggestion = tags
+            from sqlalchemy.sql import func
+            artwork.ai_generated_at = func.now()
+
             # 5. Create notification
             notification = Notification(
                 user_id=artwork.artist_id,
                 type="ai_job_completed",
                 title="AI Magic Complete!",
                 body=f"We have generated a description and price suggestion for your artwork '{artwork.title or 'Untitled'}'.",
-                data={"artwork_id": str(artwork.id), "job_id": str(job.id)}
+                metadata_data={"artwork_id": str(artwork.id), "job_id": str(job.id)}
             )
             db.add(notification)
             await db.commit()

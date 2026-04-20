@@ -1,43 +1,27 @@
-import joblib
-import pathlib
+# Replaced dummy so it doesn't need joblib/sklearn
+from core.config import get_settings
 
 class PricingService:
-    _model = None
-
     @classmethod
     def load(cls):
-        if cls._model is not None:
-            return
-        model_path = pathlib.Path(__file__).parent / "model.joblib"
-        cls._model = joblib.load(model_path)
+        pass
 
     @classmethod
     def predict(cls, medium: str, style: str, dimensions_cm2: float, artist_verified: bool, artist_artwork_count: int) -> dict:
-        if cls._model is None:
-            cls.load()
-            
-        import pandas as pd
-        features = pd.DataFrame([{
-            "medium": medium or "Unknown",
-            "style": style or "Unknown",
-            "dimensions_cm2": float(dimensions_cm2) if dimensions_cm2 else 0.0,
-            "artist_verified": int(artist_verified) if artist_verified else 0,
-            "artist_artwork_count": int(artist_artwork_count) if artist_artwork_count else 0
-        }])
+        settings = get_settings()
+        # In the future, this will connect to Groq API
+        # GROQ_API_KEY = settings.GROQ_API_KEY
         
-        prediction = cls._model.predict(features)[0]
+        # Basic heuristic for placeholder
+        base = 100.0
+        if medium and "oil" in medium.lower():
+            base = 500.0
         
-        # Simple confidence rule
-        confidence = "medium"
-        if prediction < 100:
-            confidence = "high"
-        elif prediction > 5000:
-            confidence = "low"
-            
-        # Ensure non-negative pricing
-        price = max(0.0, round(float(prediction), 2))
+        price = base + (dimensions_cm2 * 0.5)
+        if artist_verified:
+            price *= 1.5
             
         return {
-            "suggested_price": price,
-            "confidence": confidence
+            "suggested_price": round(price, 2),
+            "confidence": "low"
         }

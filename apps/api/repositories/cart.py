@@ -34,6 +34,8 @@ class CartRepository:
             raise HTTPException(status_code=404, detail="Artwork not found")
         if artwork.status != "published":
             raise HTTPException(status_code=400, detail="Artwork is not available for purchase")
+        if artwork.price is None:
+            raise HTTPException(status_code=400, detail="Artwork must have a price to be added to the cart")
 
         stmt = select(CartItem).where(CartItem.cart_id == cart_id, CartItem.artwork_id == artwork_id)
         existing = (await self.db.execute(stmt)).scalar_one_or_none()

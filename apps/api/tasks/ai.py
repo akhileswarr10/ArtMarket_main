@@ -14,7 +14,7 @@ async def _update_job_status(db, job_id: str, status: str, result: dict = None, 
     # Updating by the internal job id since we removed celery UUIDs.
     query = text("""
         UPDATE ai_jobs
-        SET status = :status, result = :result, error_message = :error_message, updated_at = now()
+        SET status = :status, result = :result, error = :error, updated_at = now()
         WHERE id = :job_id
         RETURNING id, artwork_id
     """)
@@ -22,7 +22,7 @@ async def _update_job_status(db, job_id: str, status: str, result: dict = None, 
     val = await db.execute(query, {
         "status": status,
         "result": json.dumps(result) if result else None,
-        "error_message": error_message,
+        "error": error_message,
         "job_id": job_id
     })
     res = val.fetchone()
@@ -31,8 +31,8 @@ async def _update_job_status(db, job_id: str, status: str, result: dict = None, 
 
 async def _write_notification(db, user_id, type_, title, metadata, error=False):
     query = text("""
-        INSERT INTO notifications (id, user_id, type, title, body, data, is_read)
-        VALUES (:id, :user_id, :type, :title, :body, :data, false)
+        INSERT INTO notifications (id, user_id, type, title, body, metadata, is_read)
+        VALUES (:id, :user_id, :type, :title, :body, :metadata, false)
     """)
     import json
     await db.execute(query, {
@@ -41,7 +41,7 @@ async def _write_notification(db, user_id, type_, title, metadata, error=False):
         "type": type_,
         "title": title,
         "body": "",
-        "data": json.dumps(metadata)
+        "metadata": json.dumps(metadata)
     })
     await db.commit()
 
@@ -50,7 +50,7 @@ async def create_job_record(artwork_id: str, job_type: str) -> str:
     job_id = str(uuid.uuid4())
     async with AsyncSessionLocal() as db:
         query = text("""
-            INSERT INTO ai_jobs (id, artwork_id, job_type, status, celery_task_id, attempts)
+            INSERT INTO ai_jobs (id, artwork_id, job_type, status, celery_task_id, retries)
             VALUES (:id, :artwork_id, :job_type, 'queued', :celery_task_id, 0)
         """)
         await db.execute(query, {

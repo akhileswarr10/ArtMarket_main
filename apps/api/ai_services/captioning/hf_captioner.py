@@ -12,14 +12,14 @@ VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 async def analyze_artwork(image_url: str) -> dict:
     """
-    Analyzes an artwork image using Groq's vision model.
+    Analyzes an artwork image using Groq's high-fidelity vision model.
     Returns a dict with 'caption' and 'style' keys.
-    Falls back to hash-derived values if no API key is configured.
+    Falls back to Gemini or hardcoded values if Groq fails.
     """
     if not settings.GROQ_API_KEY:
         if settings.GEMINI_API_KEY:
             return await _gemini_analyze(image_url)
-        return {"caption": _fallback_caption(image_url), "style": None}
+        return {"caption": _fallback_caption(image_url), "style": "Contemporary"}
 
     try:
         async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as http:
@@ -43,27 +43,38 @@ async def analyze_artwork(image_url: str) -> dict:
                         {
                             "type": "text",
                             "text": (
-                                "You are an expert art critic and curator. Analyze this artwork and respond in this EXACT format:\n\n"
-                                "DESCRIPTION: [1 concise sentence under 25 words about the artwork's mood and visual essence. "
-                                "Poetic tone. Do not start with 'This image shows'.]\n"
-                                "STYLE: [Single art style label, e.g. Impressionism, Realism, Abstract Expressionism, "
-                                "Contemporary, Surrealism, Minimalism, Pop Art, Figurative, etc. 1-3 words only.]"
+                                "You are a professional art historian and curator at a major gallery. Analyze this artwork image with extreme accuracy.\n\n"
+                                "1. GENERATE A TITLE: Create a short, evocative, creative title for this artwork (2-6 words). It should feel like a real gallery title — poetic, not generic.\n"
+                                "2. PROVIDE A DESCRIPTION: Write 1 evocative, professional sentence (under 30 words) describing the visual essence, "
+                                "composition, and mood. Do not start with 'A painting of'.\n"
+                                "3. IDENTIFY THE STYLE: Identify the specific historical or contemporary art style (e.g., Abstract Expressionism, "
+                                "Surrealism, Photorealism, Street Art, Minimalist, Ukiyo-e, Baroque). Response must be 1-3 words only.\n"
+                                "4. SUGGEST TAGS: Provide exactly 6 short, lowercase, searchable tags relevant to this artwork "
+                                "for marketplace discovery (e.g., oil painting, landscape, warm tones, nature, impressionism, original art). "
+                                "Each tag must be 1-3 words. Comma-separated.\n\n"
+                                "RESPONSE FORMAT:\n"
+                                "TITLE: [Artwork title]\n"
+                                "DESCRIPTION: [Your analysis]\n"
+                                "STYLE: [Style label]\n"
+                                "TAGS: [tag1, tag2, tag3, tag4, tag5, tag6]"
                             ),
                         },
                     ],
                 }
             ],
-            max_tokens=120,
-            temperature=0.6,
+            max_tokens=220,
+            temperature=0.4,
         )
 
         raw = response.choices[0].message.content.strip()
-        caption, style = _parse_analysis(raw, image_url)
-        return {"caption": caption, "style": style}
+        caption, style, tags, title = _parse_analysis(raw, image_url)
+        return {"caption": caption, "style": style, "tags": tags, "title": title}
 
     except Exception as e:
         print(f"Groq Captioner Error: {e}")
-        return {"caption": _fallback_caption(image_url), "style": None}
+        if settings.GEMINI_API_KEY:
+            return await _gemini_analyze(image_url)
+        return {"caption": _fallback_caption(image_url), "style": "Contemporary", "tags": [], "title": None}
 
 
 # Keep backward-compat alias
@@ -72,19 +83,26 @@ async def generate_caption(image_url: str) -> str | None:
     return result.get("caption")
 
 
-def _parse_analysis(raw: str, image_url: str) -> tuple[str, str | None]:
-    """Parse the DESCRIPTION/STYLE structured response."""
+def _parse_analysis(raw: str, image_url: str) -> tuple[str, str | None, list[str], str | None]:
+    """Parse the TITLE/DESCRIPTION/STYLE/TAGS structured response."""
     caption = _fallback_caption(image_url)
     style = None
+    tags: list[str] = []
+    title: str | None = None
     for line in raw.splitlines():
         line = line.strip()
-        if line.upper().startswith("DESCRIPTION:"):
+        if line.upper().startswith("TITLE:"):
+            raw_title = line.split(":", 1)[1].strip().strip("[]\"'")
+            title = raw_title.title() if raw_title else None
+        elif line.upper().startswith("DESCRIPTION:"):
             caption = line.split(":", 1)[1].strip()
         elif line.upper().startswith("STYLE:"):
             style_raw = line.split(":", 1)[1].strip()
-            # Clean up — remove brackets, quotes
             style = style_raw.strip("[]\"'").strip()
-    return caption, style or None
+        elif line.upper().startswith("TAGS:"):
+            tags_raw = line.split(":", 1)[1].strip().strip("[]")
+            tags = [t.strip().lower().strip("'\"") for t in tags_raw.split(",") if t.strip()][:7]
+    return caption, style or None, tags, title
 
 
 async def _gemini_caption(image_url: str) -> str:
@@ -146,11 +164,12 @@ async def _gemini_analyze(image_url: str) -> dict:
                 ])
             ],
         )
-        caption, style = _parse_analysis(response.text.strip(), image_url)
-        return {"caption": caption, "style": style}
+        caption, style, tags, title = _parse_analysis(response.text.strip(), image_url)
+        return {"caption": caption, "style": style, "tags": tags, "title": title}
     except Exception as e:
         print(f"Gemini Analyze Error: {e}")
-        return {"caption": _fallback_caption(image_url), "style": None}
+        return {"caption": _fallback_caption(image_url), "style": None, "tags": [], "title": None}
+
 
 
 def _fallback_caption(image_url: str) -> str:

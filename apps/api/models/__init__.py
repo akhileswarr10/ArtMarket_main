@@ -205,9 +205,6 @@ class Order(Base):
     __table_args__ = (
         CheckConstraint("status IN ('pending', 'paid', 'fulfilled', 'cancelled', 'refunded')", name='orders_status_check'),
         Index("idx_orders_buyer_id", "buyer_id"),
-        Index("idx_orders_artwork_id", "artwork_id"),
-    )
-
     )
 
 class OrderItem(Base):
@@ -280,7 +277,7 @@ class Notification(Base):
     type: Mapped[str] = mapped_column(Text(), nullable=False)
     title: Mapped[str] = mapped_column(Text(), nullable=False)
     body: Mapped[str] = mapped_column(Text(), nullable=False)
-    data: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    metadata_data: Mapped[dict | None] = mapped_column("metadata", JSONB(), nullable=True)
     is_read: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
@@ -308,22 +305,10 @@ class AIJob(Base):
     artwork: Mapped["Artwork"] = relationship("Artwork")
 
     __table_args__ = (
-        CheckConstraint("job_type IN ('captioning', 'pricing', 'recommendations')", name='ai_jobs_type_check'),
+        CheckConstraint("job_type IN ('captioning', 'pricing', 'recommendations', 'metadata_pricing')", name='ai_jobs_type_check'),
         CheckConstraint("status IN ('queued', 'running', 'done', 'failed')", name='ai_jobs_status_check'),
         Index("idx_ai_jobs_artwork_id", "artwork_id"),
         Index("idx_ai_jobs_status", "status"),
-    )
-    type: Mapped[str] = mapped_column(String(50), nullable=False)
-    title: Mapped[str] = mapped_column(Text(), nullable=False)
-    body: Mapped[str] = mapped_column(Text(), nullable=False)
-    is_read: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
-    metadata_data: Mapped[dict | None] = mapped_column("metadata", JSONB(), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
-
-    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
-
-    __table_args__ = (
-        Index("idx_notifications_user_read", "user_id", "is_read"),
     )
 
 class SystemSetting(Base):

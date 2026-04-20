@@ -1,26 +1,22 @@
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
-from uuid import UUID
-
-from core.deps import get_current_user
-from models import Notification, User
-from schemas.notification import NotificationResponse, NotificationListResponse
 import uuid
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
 
 from core.database import get_db
 from core.deps import get_current_user
-
+from models import User
 from repositories.notification import NotificationRepository
-from schemas.notification import NotificationResponse, NotificationListResponse, UnreadCountResponse
+from schemas.notification import (
+    NotificationResponse, 
+    NotificationListResponse, 
+    UnreadCountResponse
+)
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 @router.get("", response_model=NotificationListResponse)
-async def list_notifications(
 async def get_notifications(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -60,94 +56,3 @@ async def mark_all_read(
     repo = NotificationRepository(db)
     updated = await repo.mark_all_read(current_user.id)
     return {"status": "success", "updated": updated}
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import update
-from typing import List
-from pydantic import BaseModel
-from datetime import datetime
-import uuid
-
-from core.database import get_db
-from core.deps import get_current_user
-from models import User, Notification
-from repositories.notification import NotificationRepository
-
-router = APIRouter(prefix="/notifications", tags=["notifications"])
-
-class NotificationResponse(BaseModel):
-    id: uuid.UUID
-    type: str
-    title: str
-    body: str
-    is_read: bool
-    created_at: datetime
-
-    model_config = {"from_attributes": True}
-
-@router.get("", response_model=List[NotificationResponse])
-async def list_notifications(
-    limit: int = 20,
-    unread_only: bool = False,
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    stmt = select(Notification).where(Notification.user_id == user.id).order_by(Notification.created_at.desc())
-    if unread_only:
-        stmt = stmt.where(Notification.is_read == False)
-    
-    res = await db.execute(stmt)
-    notifications = res.scalars().all()
-    
-    return NotificationListResponse(notifications=list(notifications))
-
-@router.patch("/{notification_id}/read")
-async def read_notification(
-    notification_id: UUID,
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    notification = await db.get(Notification, notification_id)
-    if not notification or str(notification.user_id) != str(user.id):
-        raise HTTPException(status_code=404, detail="Notification not found")
-        
-    notification.is_read = True
-    await db.commit()
-    return {"ok": True}
-
-@router.patch("/read-all")
-async def read_all_notifications(
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    stmt = update(Notification).where(
-        Notification.user_id == user.id,
-        Notification.is_read == False
-    ).values(is_read=True)
-    await db.execute(stmt)
-    await db.commit()
-    return {"ok": True}
-    repo = NotificationRepository(db)
-    notifs = await repo.get_for_user(user.id, unread_only=unread_only)
-    return notifs[:limit]
-
-@router.patch("/read-all", status_code=status.HTTP_204_NO_CONTENT)
-async def mark_all_read(
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    await db.execute(
-        update(Notification)
-        .where(Notification.user_id == user.id, Notification.is_read == False)
-        .values(is_read=True)
-    )
-    await db.commit()
-
-@router.patch("/{notification_id}/read", status_code=status.HTTP_204_NO_CONTENT)
-async def mark_read(
-    notification_id: uuid.UUID,
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    repo = NotificationRepository(db)
-    await repo.mark_as_read(notification_id, user.id)

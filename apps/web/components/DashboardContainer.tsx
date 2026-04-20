@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import {
   Palette, Upload, TrendingUp, Eye, Heart, DollarSign,
   PlusCircle, Package, Settings, LogOut, ChevronRight,
-  BarChart3, Star, Bell, Image as ImageIcon, Brush
+  BarChart3, Star, Bell, Image as ImageIcon, Brush, Send, Loader2
 } from 'lucide-react'
 
 interface Artwork {
@@ -42,11 +42,26 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
   const artworks: Artwork[] = artworksData?.artworks || []
   const published = artworks.filter(a => a.status === 'published')
   const drafts = artworks.filter(a => a.status === 'draft')
+  const [publishingId, setPublishingId] = useState<string | null>(null)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  const handlePublish = async (id: string) => {
+    setPublishingId(id)
+    try {
+      await fetchApi(`/artworks/${id}/publish`, { method: 'PATCH' })
+      router.refresh()
+      // Note: React Query will refetch 'my-artworks' automatically if configured or we can invalidate it
+    } catch (err) {
+      console.error('Publishing failed:', err)
+      alert('Failed to publish. Ensure the artwork has a title, price and image.')
+    } finally {
+      setPublishingId(null)
+    }
   }
 
   const stats = [
@@ -188,6 +203,20 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
                       
                       {/* Action Buttons */}
                       <div className="flex items-center gap-1.5 border-l border-white/5 pl-3">
+                        {artwork.status === 'draft' && (
+                          <button
+                            disabled={publishingId === artwork.id}
+                            onClick={() => handlePublish(artwork.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-all text-[11px] font-bold disabled:opacity-30"
+                          >
+                            {publishingId === artwork.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Send className="w-3 h-3" />
+                            )}
+                            Publish
+                          </button>
+                        )}
                         <button
                           onClick={() => router.push(`/artworks/${artwork.id}`)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all text-[11px] font-bold"
@@ -196,7 +225,7 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
                           View
                         </button>
                         <button
-                          disabled={artwork.status === 'sold'}
+                          disabled={artwork.status === 'sold' || publishingId === artwork.id}
                           onClick={() => router.push(`/artist/artworks/${artwork.id}/edit`)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300 transition-all text-[11px] font-bold disabled:opacity-30 disabled:cursor-not-allowed"
                         >

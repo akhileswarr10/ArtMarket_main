@@ -37,6 +37,7 @@ function ArtworksContent() {
   const [medium, setMedium] = useState('')
   const [style, setStyle] = useState('')
   const [activeTag, setActiveTag] = useState(() => searchParams.get('tag_name') || '')
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [skip, setSkip] = useState(0)
   const limit = 12
 
@@ -236,28 +237,16 @@ function ArtworksContent() {
                           <ImageIcon className="w-10 h-10 text-slate-700" />
                         </div>
                       )}
-                      {/* Heart */}
-                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={e => { e.stopPropagation(); handleToggleFavorite(artwork.id) }}
-                          disabled={togglingId === artwork.id}
-                          className={`p-1.5 backdrop-blur-md rounded-lg transition-all ${
-                            artwork.is_favorited ? 'bg-rose-500 text-white' : 'bg-black/40 text-white hover:text-rose-400'
-                          }`}>
-                          {togglingId === artwork.id ? <Loader2 className="w-3 h-3 animate-spin" /> : (
-                            <Heart className={`w-3 h-3 ${artwork.is_favorited ? 'fill-current' : ''}`} />
-                          )}
-                        </button>
-                      
-                      {/* Heart Toggle */}
-                      <div className="absolute top-2 right-2 z-10">
-                         <FavoriteButton
-                            artworkId={artwork.id}
-                            initialIsFavorited={artwork.is_favorited}
-                            size="sm"
+                      {/* Favorite Button */}
+                      <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <FavoriteButton 
+                            artworkId={artwork.id} 
+                            initialIsFavorited={artwork.is_favorited} 
+                            size="sm" 
                           />
                       </div>
                     </div>
+                    
                     <div className="p-3 flex flex-col gap-1.5 flex-1">
                       <h3 className="font-semibold text-white truncate text-sm">{artwork.title || 'Untitled'}</h3>
                       <div className="flex items-center justify-between">

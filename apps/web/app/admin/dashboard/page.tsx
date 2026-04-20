@@ -806,7 +806,7 @@ export default function AdminDashboardPage() {
                                     </div>
                                  </div>
                                  <div className="grid grid-cols-4 gap-4 text-left">
-                                    {artworkDetail.images?.slice(1, 5).map((img, i) => (
+                                    {artworkDetail.images?.slice(1, 5).map((img: any, i: number) => (
                                        <div key={i} className="aspect-square bg-white/3 rounded-2xl overflow-hidden border border-white/5 opacity-60 hover:opacity-100 transition-opacity text-left cursor-zoom-in">
                                           <img src={img.signed_url} alt="" className="w-full h-full object-cover" />
                                        </div>

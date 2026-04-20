@@ -24,6 +24,7 @@ export default function ArtworkEditPage() {
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [isSold, setIsSold] = useState(false)
+  const [artworkStatus, setArtworkStatus] = useState<string>('')
 
   const [status, setStatus] = useState<Status>('loading')
   const [error, setError] = useState('')
@@ -88,6 +89,7 @@ export default function ArtworkEditPage() {
       setPrice(data.price?.toString() || '')
       if (Array.isArray(data.tags)) setTags(data.tags.map((t: any) => t.name || t))
       setIsSold(data.status === 'sold')
+      setArtworkStatus(data.status)
       
       if (data.status === 'sold') {
         setError('Sold artworks cannot be modified.')
@@ -134,6 +136,43 @@ export default function ArtworkEditPage() {
     }
   }
 
+  const handlePublish = async () => {
+    if (!title.trim()) {
+      setError('Title is required to publish')
+      return
+    }
+
+    setStatus('saving')
+    setError('')
+
+    try {
+      // 1. Save changes first
+      await fetchApi(`/artworks/${params.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title,
+          description: description || undefined,
+          medium: medium || undefined,
+          style: style || undefined,
+          dimensions: dimensions || undefined,
+          price: price ? parseFloat(price) : undefined,
+        }),
+      })
+
+      // 2. Then publish
+      await fetchApi(`/artworks/${params.id}/publish`, { method: 'PATCH' })
+
+      setArtworkStatus('published')
+      setStatus('success')
+      setTimeout(() => {
+        router.push(`/artworks/${params.id}`)
+      }, 1500)
+    } catch (err: any) {
+      setStatus('error')
+      setError(err.message || 'Publishing failed. Please ensure a price is set and try again.')
+    }
+  }
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -174,8 +213,17 @@ export default function ArtworkEditPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-3xl font-black text-white">Edit Masterpiece</h1>
-              <p className="text-slate-400">Update the details of your listed artwork</p>
+              <div className="flex items-center gap-3 mb-1">
+                <h1 className="text-3xl font-black text-white">Edit Masterpiece</h1>
+                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                  artworkStatus === 'published' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' :
+                  artworkStatus === 'draft' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/20' :
+                  'bg-slate-500/20 text-slate-400 border border-slate-500/20'
+                }`}>
+                  {artworkStatus}
+                </span>
+              </div>
+              <p className="text-slate-400 text-sm">Update the details of your listed artwork</p>
             </div>
           </div>
         </header>
@@ -324,23 +372,41 @@ export default function ArtworkEditPage() {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-white/5 flex gap-4">
+              <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-4">
                  <button
                    onClick={() => router.back()}
                    className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl transition-all"
                  >
                    Discard
                  </button>
+                 
+                 {artworkStatus === 'draft' && (
+                   <button
+                     disabled={status === 'saving' || isSold}
+                     onClick={handlePublish}
+                     className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20"
+                   >
+                     {status === 'saving' ? (
+                       <Loader2 className="w-5 h-5 animate-spin" />
+                     ) : (
+                       <>
+                          <Send className="w-4 h-4" />
+                          Publish to Gallery
+                       </>
+                     )}
+                   </button>
+                 )}
+
                  <button
                    disabled={status === 'saving' || isSold}
                    onClick={handleSubmit}
-                   className="flex-2 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/20"
+                   className={`${artworkStatus === 'draft' ? 'flex-1' : 'flex-[2]'} py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/20`}
                  >
                    {status === 'saving' ? (
                      <Loader2 className="w-5 h-5 animate-spin" />
                    ) : (
                      <>
-                        <Send className="w-4 h-4" />
+                        <CheckCircle className="w-4 h-4" />
                         Save Changes
                      </>
                    )}

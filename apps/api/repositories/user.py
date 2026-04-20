@@ -30,7 +30,7 @@ class UserRepository:
 
     async def create_from_jwt(self, supabase_user_id: uuid.UUID, email: str) -> User:
         """Lazy user creation on first authenticated request."""
-        user = User(supabase_user_id=supabase_user_id, email=email, role=None)
+        user = User(supabase_user_id=supabase_user_id, email=email)
         self.db.add(user)
         await self.db.commit()
         # Re-fetch with eager loads  

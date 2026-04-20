@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 from core.database import get_db
-from core.deps import get_current_user, require_buyer
+from core.deps import get_current_user
 from core.config import get_settings
 from models import User
 from repositories.cart import CartRepository
@@ -21,7 +21,7 @@ settings = get_settings()
 @router.post("/session", response_model=CheckoutSessionResponse)
 async def create_checkout_session(
     checkout_in: CheckoutRequest,
-    current_user: Annotated[User, Depends(require_buyer)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     if not current_user.is_active:
@@ -53,7 +53,7 @@ async def create_checkout_session(
 @router.post("/confirm/{order_id}")
 async def confirm_checkout_dummy(
     order_id: uuid.UUID,
-    current_user: Annotated[User, Depends(require_buyer)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     order_repo = OrderRepository(db)

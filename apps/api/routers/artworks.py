@@ -37,7 +37,8 @@ def _generate_signed_url(storage_path: str) -> Optional[str]:
             storage_path, expires_in=3600
         )
         return result.get("signedURL") or result.get("signedUrl")
-    except Exception:
+    except Exception as e:
+        print(f"Error generating signed URL for {storage_path}: {e}")
         return None
 
 
@@ -88,7 +89,7 @@ async def create_artwork(
     return _build_artwork_response(artwork)
 
 
-@router.get("/me", response_model=ArtworkListResponse)
+@router.get("/mine", response_model=ArtworkListResponse)
 async def get_my_artworks(
     status_filter: Optional[str] = None,
     skip: int = 0,
@@ -302,14 +303,16 @@ async def confirm_image_upload(
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
         
-    from tasks.ai import run_captioning, run_pricing, create_job_record
+    from models import AIJob
+    from ai_services.ai_pipeline import process_ai_job
     
-    # Pre-create the job IDs so they are inserted into DB, then background them.
-    caption_job_id = await create_job_record(str(artwork_id), "captioning")
-    price_job_id = await create_job_record(str(artwork_id), "pricing")
+    # Create the unified AI job record
+    job = AIJob(artwork_id=artwork_id, job_type="metadata_pricing")
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
     
-    background_tasks.add_task(run_captioning, caption_job_id, str(artwork_id), image.storage_path)
-    background_tasks.add_task(run_pricing, price_job_id, str(artwork_id))
+    background_tasks.add_task(process_ai_job, job.id)
     
     signed_url = _generate_signed_url(image.storage_path)
     return _build_image_response(image, signed_url)

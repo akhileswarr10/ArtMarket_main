@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 from core.database import get_db
-from core.deps import get_current_user, require_buyer
+from core.deps import get_current_user
 from models import User
 from repositories.cart import CartRepository
 from schemas.cart import CartResponse, CartItemResponse, CartItemAdd
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/cart", tags=["cart"])
 
 @router.get("", response_model=CartResponse)
 async def get_cart(
-    current_user: Annotated[User, Depends(require_buyer)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     repo = CartRepository(db)
@@ -23,7 +23,7 @@ async def get_cart(
 @router.post("/items", response_model=CartItemResponse)
 async def add_item_to_cart(
     item_in: CartItemAdd,
-    current_user: Annotated[User, Depends(require_buyer)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     repo = CartRepository(db)
@@ -34,7 +34,7 @@ async def add_item_to_cart(
 @router.delete("/items/{artwork_id}")
 async def remove_item_from_cart(
     artwork_id: uuid.UUID,
-    current_user: Annotated[User, Depends(require_buyer)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     repo = CartRepository(db)
