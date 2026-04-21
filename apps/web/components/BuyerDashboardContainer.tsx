@@ -24,6 +24,7 @@ interface Artwork {
   medium: string | null
   style: string | null
   is_favorited: boolean
+  tags: { id: string; name: string }[]
 }
 
 export default function BuyerDashboardContainer({ session }: { session: any }) {
@@ -179,6 +180,13 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                          <p className="text-xs text-slate-500 uppercase tracking-widest font-bold font-mono py-1">{artwork.medium || 'Untitled'}</p>
                          <p className="text-sm font-black text-emerald-400">£{artwork.price?.toLocaleString()}</p>
                        </div>
+                       {artwork.tags && artwork.tags.length > 0 && (
+                         <div className="flex flex-wrap gap-1 mt-1">
+                           {artwork.tags.slice(0, 3).map(tag => (
+                             <span key={tag.id} className="text-[10px] px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded font-semibold">#{tag.name}</span>
+                           ))}
+                         </div>
+                       )}
                     </div>
                   </motion.div>
                 )

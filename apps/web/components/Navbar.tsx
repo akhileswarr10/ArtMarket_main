@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -22,7 +22,9 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
 
-  const { setCart, isInitialized } = useCartStore()
+  const { setCart, clearCart } = useCartStore()
+  // Track which user's cart is currently loaded to detect user switches
+  const cartUserIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -43,16 +45,28 @@ export default function Navbar() {
   }, [supabase])
 
   useEffect(() => {
-    if (session?.user && !isInitialized) {
-      import('@/lib/api/client').then(({ getCart }) => {
+    if (session?.user) {
+      const userId = session.user.id
+      // Re-fetch cart whenever a different user logs in
+      if (cartUserIdRef.current !== userId) {
+        cartUserIdRef.current = userId
+        import('@/lib/api/client').then(({ getCart }) => {
           getCart().then(setCart).catch(console.error)
-      })
+        })
+      }
+    } else {
+      // Session gone (logged out) — clear the cart
+      if (cartUserIdRef.current !== null) {
+        cartUserIdRef.current = null
+        clearCart()
+      }
     }
-  }, [session, isInitialized, setCart])
+  }, [session, setCart, clearCart])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    setCart({ id: '', buyer_id: '', items: [], total: 0, created_at: '' })
+    cartUserIdRef.current = null
+    clearCart()
     router.push('/login')
     router.refresh()
   }

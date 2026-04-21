@@ -6,8 +6,8 @@ import { fetchApi } from '@/lib/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ShoppingBag, ChevronRight, Calendar, Package, 
-  ImageIcon, X, Download, ShieldCheck, Truck, 
-  User as UserIcon, Palette
+  ImageIcon, X, Download, ShieldCheck, TrendingUp, 
+  User as UserIcon, Palette, ArrowLeft, DollarSign
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -30,7 +30,7 @@ interface Order {
   }[]
 }
 
-export default function PurchasesPage() {
+export default function ArtistSalesPage() {
   const supabase = createClient()
   const router = useRouter()
   const [session, setSession] = useState<any>(null)
@@ -41,8 +41,8 @@ export default function PurchasesPage() {
   }, [])
   
   const { data, isLoading } = useQuery({
-    queryKey: ['my-purchases', session?.user?.id],
-    queryFn: () => fetchApi('/orders'),
+    queryKey: ['artist-sales', session?.user?.id],
+    queryFn: () => fetchApi('/orders/artist/sales'),
     enabled: !!session,
   })
 
@@ -53,8 +53,10 @@ export default function PurchasesPage() {
   })
 
   const orders: Order[] = data?.orders || []
+  const totalEarnings = orders.reduce((acc, order) => acc + order.total_amount, 0)
+  const totalSales = orders.length
 
-  const handleDownloadInvoice = () => {
+  const handlePrint = () => {
     window.print()
   }
 
@@ -67,13 +69,35 @@ export default function PurchasesPage() {
 
       <div className="max-w-5xl mx-auto print:hidden">
         <header className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-              <ShoppingBag className="w-6 h-6" />
+          <button 
+            onClick={() => router.push('/artist/dashboard')}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Studio
+          </button>
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black text-white">Sales & Earnings</h1>
+                <p className="text-slate-400">Track your masterpiece acquisitions</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-black text-white">My Purchases</h1>
-              <p className="text-slate-400">Manage and track your art collection</p>
+
+            {/* Summary Cards */}
+            <div className="flex gap-4">
+               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[160px]">
+                  <p className="text-xs text-slate-500 uppercase font-black tracking-widest mb-1">Total Earned</p>
+                  <p className="text-2xl font-black text-emerald-400">£{totalEarnings.toLocaleString()}</p>
+               </div>
+               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-w-[140px]">
+                  <p className="text-xs text-slate-500 uppercase font-black tracking-widest mb-1">Items Sold</p>
+                  <p className="text-2xl font-black text-white">{totalSales}</p>
+               </div>
             </div>
           </div>
         </header>
@@ -87,16 +111,10 @@ export default function PurchasesPage() {
         ) : orders.length === 0 ? (
           <div className="text-center py-20 bg-white/5 rounded-[2.5rem] border border-white/10">
             <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <Package className="w-10 h-10 text-slate-700" />
+              <ShoppingBag className="w-10 h-10 text-slate-700" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No purchases yet</h3>
-            <p className="text-slate-500 mb-8">Start your collection by exploring the marketplace</p>
-            <button 
-              onClick={() => router.push('/artworks')}
-              className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
-            >
-              Browse Marketplace
-            </button>
+            <h3 className="text-xl font-bold text-white mb-2">No sales yet</h3>
+            <p className="text-slate-500 mb-8">Maintain your gallery to attract collectors</p>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -141,7 +159,7 @@ export default function PurchasesPage() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-black text-white">${order.total_amount?.toLocaleString()}</p>
+                    <p className="text-xl font-black text-white">£{order.total_amount?.toLocaleString()}</p>
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Order #{order.id.slice(0, 8)}</p>
                   </div>
 
@@ -173,8 +191,8 @@ export default function PurchasesPage() {
               {/* Modal Header */}
               <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/2">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Order Details</h2>
-                  <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Transaction #{selectedOrder.id.slice(0, 12)}</p>
+                  <h2 className="text-xl font-bold text-white">Sale Details</h2>
+                  <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Order #{selectedOrder.id.slice(0, 12)}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedOrder(null)}
@@ -210,7 +228,7 @@ export default function PurchasesPage() {
                     </div>
                     <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest">
                        <ShieldCheck className="w-3 h-3" />
-                       Verified Purchase
+                       Confirmed Sale
                     </div>
                   </div>
                 </div>
@@ -218,26 +236,26 @@ export default function PurchasesPage() {
                 {/* Details Grid */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Shipping Status</h4>
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Fullfillment</h4>
                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
                        <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
-                         <Truck className="w-5 h-5" />
+                         <Package className="w-5 h-5" />
                        </div>
                        <div>
                          <p className="text-sm font-bold text-white capitalize">{selectedOrder.status}</p>
-                         <p className="text-[10px] text-slate-500">Awaiting dispatch from artist</p>
+                         <p className="text-[10px] text-slate-500">Awaiting shipping label</p>
                        </div>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Acquired By</h4>
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Purchased By</h4>
                     <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
                        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
                          <UserIcon className="w-5 h-5" />
                        </div>
                        <div>
-                         <p className="text-sm font-bold text-white">{userData?.display_name || 'Collector'}</p>
-                         <p className="text-[10px] text-slate-500 truncate w-32">{userData?.email}</p>
+                         <p className="text-sm font-bold text-white">Verified Collector</p>
+                         <p className="text-[10px] text-slate-500">Order ID: {selectedOrder.buyer_id.slice(0, 8)}...</p>
                        </div>
                     </div>
                   </div>
@@ -246,16 +264,16 @@ export default function PurchasesPage() {
                 {/* Summary */}
                 <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 space-y-3">
                    <div className="flex justify-between text-sm text-slate-400">
-                     <span>Artwork Price</span>
-                     <span className="text-white">${selectedOrder.total_amount?.toLocaleString()}</span>
+                     <span>Sale Price</span>
+                     <span className="text-white">£{selectedOrder.total_amount?.toLocaleString()}</span>
                    </div>
                    <div className="flex justify-between text-sm text-slate-400">
-                     <span>Standard Shipping</span>
-                     <span className="text-emerald-400 font-bold uppercase text-[10px]">Free</span>
+                     <span>Platform Fee</span>
+                     <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">£0.00 (Promotion)</span>
                    </div>
                    <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
-                     <span className="font-bold text-white">Total Paid</span>
-                     <span className="text-3xl font-black text-emerald-500">${selectedOrder.total_amount?.toLocaleString()}</span>
+                     <span className="font-bold text-white">Your Earnings</span>
+                     <span className="text-3xl font-black text-emerald-500">£{selectedOrder.total_amount?.toLocaleString()}</span>
                    </div>
                 </div>
               </div>
@@ -263,17 +281,17 @@ export default function PurchasesPage() {
               {/* Modal Footer */}
               <div className="p-6 bg-white/2 border-t border-white/5 flex gap-3">
                 <button 
-                  onClick={handleDownloadInvoice}
+                  onClick={handlePrint}
                   className="flex-1 bg-white text-slate-900 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-xl shadow-white/5"
                 >
                   <Download className="w-4 h-4" />
-                  Print / View Bill
+                  Print Receipt
                 </button>
                 <button 
                   onClick={() => router.push(`/artworks/${selectedOrder.items?.[0]?.artwork?.id}`)}
-                  className="px-6 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all"
+                  className="px-6 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all font-bold text-sm"
                 >
-                  View Artwork
+                  View Details
                 </button>
               </div>
             </motion.div>

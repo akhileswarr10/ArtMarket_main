@@ -10,6 +10,7 @@ class OrderItemResponse(BaseModel):
     price_paid: float
     title_snapshot: str
     status: str
+    artwork: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)
 

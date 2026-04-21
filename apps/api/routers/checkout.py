@@ -85,6 +85,13 @@ async def confirm_checkout_dummy(
         artwork_titles.append(item.title_snapshot)
         await notify_sale_artist(db, item.artist_id, order.id, item.title_snapshot)
         
+        from repositories.artwork import ArtworkRepository
+        artwork_repo = ArtworkRepository(db)
+        artwork = await artwork_repo.get_by_id(item.artwork_id)
+        if artwork:
+            artwork.status = "sold"
+            await db.commit()
+        
     await notify_purchase_buyer(db, current_user.id, order.id, artwork_titles)
     await log(db, current_user.id, "order.paid", "order", order.id)
 

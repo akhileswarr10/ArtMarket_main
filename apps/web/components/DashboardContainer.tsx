@@ -81,13 +81,22 @@ export default function ArtistDashboardClient({ session }: { session: any }) {
             <h1 className="text-2xl font-bold text-white">Artist Studio</h1>
             <p className="text-slate-400 text-sm mt-1">Manage your artworks and track performance</p>
           </div>
-          <button
-            onClick={() => router.push('/artist/upload')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Upload Artwork
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/artist/sales')}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all border border-white/10"
+            >
+              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              View Sales
+            </button>
+            <button
+              onClick={() => router.push('/artist/upload')}
+              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Upload Artwork
+            </button>
+          </div>
         </div>
 
         {/* Verification Banner */}

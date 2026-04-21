@@ -54,5 +54,5 @@ export const useCartStore = create<CartStore>((set) => ({
     totalCount: Math.max(0, state.totalCount - 1)
   })),
   setIsOpen: (isOpen) => set({ isOpen }),
-  clearCart: () => set({ items: [], totalCount: 0, isInitialized: true }),
+  clearCart: () => set({ items: [], totalCount: 0, isInitialized: false }),
 }))

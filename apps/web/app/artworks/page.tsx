@@ -51,6 +51,18 @@ function ArtworksContent() {
     if (urlTag) setActiveTag(urlTag)
   }, [searchParams])
 
+  // Debounced live search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (search !== searchInput) {
+        setSearch(searchInput)
+        setActiveTag('')
+        setSkip(0)
+      }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [searchInput, search])
+
   const params = new URLSearchParams()
   params.set('limit', String(limit))
   params.set('skip', String(skip))

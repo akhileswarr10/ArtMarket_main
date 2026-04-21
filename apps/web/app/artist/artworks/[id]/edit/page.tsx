@@ -104,6 +104,20 @@ export default function ArtworkEditPage() {
     }
   }
 
+  const resolveTagIds = async (tagNames: string[]): Promise<string[]> => {
+    if (!tagNames.length) return []
+    try {
+      const resolved = await fetchApi('/tags/resolve', {
+        method: 'POST',
+        body: JSON.stringify(tagNames),
+      })
+      return resolved.map((t: any) => t.id)
+    } catch (e) {
+      console.error('Failed to resolve tags:', e)
+      return []
+    }
+  }
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       setError('Title is required')
@@ -114,6 +128,7 @@ export default function ArtworkEditPage() {
     setError('')
 
     try {
+      const tag_ids = await resolveTagIds(tags)
       await fetchApi(`/artworks/${params.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -123,6 +138,7 @@ export default function ArtworkEditPage() {
           style: style || undefined,
           dimensions: dimensions || undefined,
           price: price ? parseFloat(price) : undefined,
+          tag_ids,
         }),
       })
 
@@ -147,6 +163,7 @@ export default function ArtworkEditPage() {
 
     try {
       // 1. Save changes first
+      const tag_ids = await resolveTagIds(tags)
       await fetchApi(`/artworks/${params.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -156,6 +173,7 @@ export default function ArtworkEditPage() {
           style: style || undefined,
           dimensions: dimensions || undefined,
           price: price ? parseFloat(price) : undefined,
+          tag_ids,
         }),
       })
 

@@ -58,7 +58,9 @@ class OrderRepository:
         return (await self.db.execute(stmt)).scalar_one_or_none()
 
     async def get_by_buyer(self, buyer_id: uuid.UUID, skip: int = 0, limit: int = 50) -> Tuple[List[Order], int]:
-        stmt = select(Order).options(selectinload(Order.items)).where(Order.buyer_id == buyer_id).order_by(Order.created_at.desc()).offset(skip).limit(limit)
+        stmt = select(Order).options(
+            selectinload(Order.items).selectinload(OrderItem.artwork).selectinload(Artwork.images)
+        ).where(Order.buyer_id == buyer_id).order_by(Order.created_at.desc()).offset(skip).limit(limit)
         count_stmt = select(func.count()).select_from(Order).where(Order.buyer_id == buyer_id)
         
         orders = (await self.db.execute(stmt)).scalars().all()
@@ -69,7 +71,9 @@ class OrderRepository:
         stmt = (
             select(Order)
             .join(Order.items)
-            .options(selectinload(Order.items))
+            .options(
+                selectinload(Order.items).selectinload(OrderItem.artwork).selectinload(Artwork.images)
+            )
             .where(OrderItem.artist_id == artist_id)
             .order_by(Order.created_at.desc())
             .distinct()

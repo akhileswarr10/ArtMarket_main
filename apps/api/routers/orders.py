@@ -23,7 +23,50 @@ async def get_my_orders(
 ):
     repo = OrderRepository(db)
     orders, total = await repo.get_by_buyer(current_user.id, skip=skip, limit=limit)
-    return {"orders": orders, "total": total}
+    
+    from routers.artworks import _generate_signed_url
+    orders_data = []
+    for o in orders:
+        o_dict = {
+            "id": o.id,
+            "buyer_id": o.buyer_id,
+            "status": o.status,
+            "total_amount": o.total_amount,
+            "currency": o.currency,
+            "shipping_address": o.shipping_address,
+            "created_at": o.created_at,
+            "updated_at": o.updated_at,
+            "items": []
+        }
+        for item in o.items:
+            item_data = {
+                "id": item.id,
+                "artwork_id": item.artwork_id,
+                "artist_id": item.artist_id,
+                "price_paid": item.price_paid,
+                "title_snapshot": item.title_snapshot,
+                "status": item.status,
+                "artwork": None
+            }
+            if hasattr(item, "artwork") and item.artwork:
+                images = []
+                for img in item.artwork.images:
+                    if img.is_confirmed:
+                        images.append({
+                            "signed_url": _generate_signed_url(img.storage_path),
+                            "is_primary": img.is_primary
+                        })
+                item_data["artwork"] = {
+                    "id": str(item.artwork.id),
+                    "title": item.artwork.title,
+                    "medium": item.artwork.medium,
+                    "dimensions": item.artwork.dimensions,
+                    "images": images
+                }
+            o_dict["items"].append(item_data)
+        orders_data.append(o_dict)
+
+    return {"orders": orders_data, "total": total}
 
 @router.get("/{id}", response_model=OrderResponse)
 async def get_order(
@@ -71,7 +114,57 @@ async def get_artist_sales(
 ):
     repo = OrderRepository(db)
     orders, total = await repo.get_by_artist(current_user.id, skip=skip, limit=limit)
-    return {"orders": orders, "total": total}
+    
+    from routers.artworks import _generate_signed_url
+    orders_data = []
+    for o in orders:
+        # Filter items to only include those belonging to the current artist
+        artist_items = [item for item in o.items if item.artist_id == current_user.id]
+        if not artist_items:
+            continue
+            
+        artist_total = sum(float(item.price_paid or 0) for item in artist_items)
+            
+        o_dict = {
+            "id": o.id,
+            "buyer_id": o.buyer_id,
+            "status": o.status,
+            "total_amount": artist_total,
+            "currency": o.currency,
+            "shipping_address": o.shipping_address,
+            "created_at": o.created_at,
+            "updated_at": o.updated_at,
+            "items": []
+        }
+        for item in artist_items:
+            item_data = {
+                "id": item.id,
+                "artwork_id": item.artwork_id,
+                "artist_id": item.artist_id,
+                "price_paid": item.price_paid,
+                "title_snapshot": item.title_snapshot,
+                "status": item.status,
+                "artwork": None
+            }
+            if hasattr(item, "artwork") and item.artwork:
+                images = []
+                for img in item.artwork.images:
+                    if img.is_confirmed:
+                        images.append({
+                            "signed_url": _generate_signed_url(img.storage_path),
+                            "is_primary": img.is_primary
+                        })
+                item_data["artwork"] = {
+                    "id": str(item.artwork.id),
+                    "title": item.artwork.title,
+                    "medium": item.artwork.medium,
+                    "dimensions": item.artwork.dimensions,
+                    "images": images
+                }
+            o_dict["items"].append(item_data)
+        orders_data.append(o_dict)
+
+    return {"orders": orders_data, "total": total}
 
 @router.get("/admin/all", response_model=OrderListResponse)
 async def admin_get_all_orders(

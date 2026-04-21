@@ -233,6 +233,20 @@ export default function ArtworkUploadPage() {
     }
   }
 
+  const resolveTagIds = async (tagNames: string[]): Promise<string[]> => {
+    if (!tagNames.length) return []
+    try {
+      const resolved = await fetchApi('/tags/resolve', {
+        method: 'POST',
+        body: JSON.stringify(tagNames),
+      })
+      return resolved.map((t: any) => t.id)
+    } catch (e) {
+      console.error('Failed to resolve tags:', e)
+      return []
+    }
+  }
+
   const handleSubmitMetadata = async (publish: boolean = false) => {
     if (!artworkId) return
     if (!title.trim()) {
@@ -242,6 +256,7 @@ export default function ArtworkUploadPage() {
 
     setStatus('uploading')
     try {
+      const tag_ids = await resolveTagIds(tags)
       await fetchApi(`/artworks/${artworkId}`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -251,6 +266,7 @@ export default function ArtworkUploadPage() {
           style: style || undefined,
           dimensions: dimensions || undefined,
           price: price ? parseFloat(price) : undefined,
+          tag_ids,
         })
       })
 

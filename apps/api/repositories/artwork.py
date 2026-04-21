@@ -72,10 +72,21 @@ class ArtworkRepository:
             query = query.where(Artwork.style.ilike(f"%{style}%"))
             count_query = count_query.where(Artwork.style.ilike(f"%{style}%"))
         if search:
-            from sqlalchemy import func as sqlfunc
-            tsquery = sqlfunc.plainto_tsquery("english", search)
-            query = query.where(Artwork.search_vector.op("@@")(tsquery))
-            count_query = count_query.where(Artwork.search_vector.op("@@")(tsquery))
+            from sqlalchemy import or_
+            search_term = f"%{search}%"
+            tag_exists = select(ArtworkTag.artwork_id).join(Tag, Tag.id == ArtworkTag.tag_id).where(
+                ArtworkTag.artwork_id == Artwork.id,
+                Tag.name.ilike(search_term)
+            ).exists()
+            
+            search_condition = or_(
+                Artwork.title.ilike(search_term),
+                Artwork.medium.ilike(search_term),
+                Artwork.style.ilike(search_term),
+                tag_exists
+            )
+            query = query.where(search_condition)
+            count_query = count_query.where(search_condition)
         if tag_name:
             query = query.join(ArtworkTag, ArtworkTag.artwork_id == Artwork.id)\
                          .join(Tag, Tag.id == ArtworkTag.tag_id)\
