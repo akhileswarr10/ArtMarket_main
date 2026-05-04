@@ -14,7 +14,7 @@ import { useCartStore } from '@/lib/stores/cartStore'
 import { addToCart } from '@/lib/api/client'
 import FavoriteButton from '@/components/FavoriteButton'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/api$/, '') + '/api'
 
 interface ArtworkImage {
   id: string
