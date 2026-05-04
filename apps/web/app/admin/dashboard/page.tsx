@@ -491,7 +491,7 @@ export default function AdminDashboardPage() {
                     <tbody className="divide-y divide-white/5">
                        {artworksLoading ? (
                          <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
-                       ) : artworksData?.artworks.map((a: any) => (
+                       ) : artworksData?.artworks?.map((a: any) => (
                          <tr key={a.id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
                                <p className="font-bold text-ink text-sm">{a.title}</p>
@@ -553,9 +553,9 @@ export default function AdminDashboardPage() {
                     <tbody className="divide-y divide-white/5">
                        {ordersLoading ? (
                          <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
-                       ) : ordersData?.orders.length === 0 ? (
+                       ) : !ordersData?.orders?.length ? (
                          <tr><td colSpan={4} className="p-20 text-center text-ink-secondary font-bold uppercase tracking-widest">No transaction records found</td></tr>
-                       ) : ordersData?.orders.map((o: any) => (
+                       ) : ordersData.orders.map((o: any) => (
                          <tr key={o.id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
                                <p className="font-bold text-ink text-sm tracking-tight">#{o.id.substring(0,8).toUpperCase()}</p>
