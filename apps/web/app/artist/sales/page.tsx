@@ -283,7 +283,7 @@ export default function ArtistSalesPage() {
               <div className="p-6 bg-surface/30 border-t border-border-subtle flex gap-3">
                 <button 
                   onClick={handlePrint}
-                  className="flex-1 bg-canvas-50 text-ink py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-xl shadow-black/20"
+                  className="flex-1 bg-slate-100 text-slate-900 py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-white transition-all shadow-xl shadow-black/20"
                 >
                   <Download className="w-4 h-4" />
                   Print Receipt
