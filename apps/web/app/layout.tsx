@@ -1,25 +1,44 @@
-import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Cormorant_Garamond, DM_Sans, JetBrains_Mono } from 'next/font/google'
+import './globals.css'
+import Providers from './providers'
+import Navbar from '@/components/Navbar'
 
-const inter = Inter({ subsets: ['latin'] })
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+})
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'ArtMarket - AI-Powered Art Marketplace',
-  description: 'Discover unique artwork from talented artists',
+  title: 'ArtMarket — Curated Original Art',
+  description: 'Discover and collect exceptional original artworks from verified artists worldwide.',
 }
-
-import Providers from "./providers";
-import Navbar from "@/components/Navbar";
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-slate-950 text-white min-h-screen`}>
+    <html lang="en" className={`${cormorant.variable} ${dmSans.variable} ${jetbrains.variable}`}>
+      <body className="bg-canvas-950 text-ink antialiased selection:bg-gold-muted selection:text-gold-400 min-h-screen">
         <Providers>
           <Navbar />
           <main className="pt-20">
@@ -28,5 +47,5 @@ export default function RootLayout({
         </Providers>
       </body>
     </html>
-  );
+  )
 }

@@ -78,8 +78,8 @@ export default function FavoriteButton({
         relative overflow-hidden transition-all duration-300 active:scale-90
         backdrop-blur-md border shadow-lg
         ${isFavorited 
-          ? 'bg-rose-500 border-rose-400 text-white shadow-rose-500/20' 
-          : 'bg-black/40 border-white/10 text-white hover:text-rose-400 hover:border-rose-500/30'
+          ? 'bg-rose-500 border-rose-400 text-ink shadow-rose-500/20' 
+          : 'bg-black/40 border-border text-ink hover:text-rose hover:border-rose/30'
         }
         ${sizes[size]}
         ${className}

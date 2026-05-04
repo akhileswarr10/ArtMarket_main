@@ -85,21 +85,21 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 pt-24 px-6 flex justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+      <div className="min-h-screen bg-canvas-950 pt-24 px-6 flex justify-center">
+        <Loader2 className="w-7 h-7 text-gold-500 animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 pt-10 px-6 pb-20">
+    <div className="min-h-screen bg-canvas-950 pt-10 px-6 pb-20">
       <div className="max-w-4xl mx-auto">
         <header className="mb-10">
-          <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <SettingsIcon className="w-8 h-8 text-indigo-500" />
+          <h1 className="font-display text-4xl font-bold text-ink flex items-center gap-3">
+            <SettingsIcon className="w-8 h-8 text-gold-500" />
             Settings
           </h1>
-          <p className="text-slate-400 mt-2">Manage your account and profile preferences</p>
+          <p className="text-ink-secondary mt-2">Manage your account and profile preferences</p>
         </header>
 
         <div className="grid md:grid-cols-[240px_1fr] gap-8">
@@ -118,8 +118,8 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.label)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                   activeTab === tab.label 
-                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' 
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                    ? 'bg-gold-muted text-gold-400 border border-gold/20' 
+                    : 'text-ink-secondary hover:bg-surface/60 hover:text-ink'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -136,18 +136,18 @@ export default function SettingsPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-8 shadow-2xl"
+              className="bg-surface border border-border-subtle rounded-2xl shadow-card p-8 shadow-2xl"
             >
               {activeTab === 'Address' && (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-indigo-400" />
+                  <h2 className="font-display text-xl font-semibold text-ink mb-6 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-gold-400" />
                     Shipping & Billing Address
                   </h2>
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Street Address</label>
+                      <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Street Address</label>
                       <input
                         type="text"
                         value={formData.address.street}
@@ -156,13 +156,13 @@ export default function SettingsPage() {
                           address: { ...formData.address, street: e.target.value }
                         })}
                         placeholder="123 Art Lane"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                        className="input-galerie w-full"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">City</label>
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">City</label>
                         <input
                           type="text"
                           value={formData.address.city}
@@ -171,11 +171,11 @@ export default function SettingsPage() {
                             address: { ...formData.address, city: e.target.value }
                           })}
                           placeholder="San Francisco"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                          className="input-galerie w-full"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">State / Province</label>
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">State / Province</label>
                         <input
                           type="text"
                           value={formData.address.state}
@@ -184,14 +184,14 @@ export default function SettingsPage() {
                             address: { ...formData.address, state: e.target.value }
                           })}
                           placeholder="CA"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                          className="input-galerie w-full"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Zip / Postal Code</label>
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Zip / Postal Code</label>
                         <input
                           type="text"
                           value={formData.address.zip}
@@ -200,11 +200,11 @@ export default function SettingsPage() {
                             address: { ...formData.address, zip: e.target.value }
                           })}
                           placeholder="94103"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                          className="input-galerie w-full"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Country</label>
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Country</label>
                         <input
                           type="text"
                           value={formData.address.country}
@@ -213,37 +213,37 @@ export default function SettingsPage() {
                             address: { ...formData.address, country: e.target.value }
                           })}
                           placeholder="United States"
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                          className="input-galerie w-full"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="pt-6 border-t border-border-subtle flex flex-col sm:flex-row items-center gap-4">
                     <button
                       type="submit"
                       disabled={mutation.isPending}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 disabled:bg-indigo-800"
+                      className="btn-gold w-full"
                     >
                       {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       Update Address
                     </button>
-                    {success && <p className="text-sm text-emerald-400 font-medium">✓ {success}</p>}
-                    {error && <p className="text-sm text-rose-400 font-medium">✗ {error}</p>}
+                    {success && <p className="text-sm text-emerald font-medium">✓ {success}</p>}
+                    {error && <p className="text-sm text-rose font-medium">✗ {error}</p>}
                   </div>
                 </form>
               )}
 
               {activeTab === 'Profile' && (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="flex items-center gap-6 mb-8 text-white">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl font-bold shadow-xl shadow-indigo-500/20">
+                  <div className="flex items-center gap-6 mb-8 text-ink">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold-600 to-copper flex items-center justify-center text-3xl font-bold shadow-xl shadow-gold-sm">
                       {userData?.email?.[0].toUpperCase()}
                     </div>
                     <div>
                       <h2 className="text-lg font-bold mb-1">Your Avatar</h2>
-                      <p className="text-xs text-slate-500">JPG, PNG or GIF. Max size 2MB.</p>
-                      <button type="button" className="mt-2 text-xs font-bold text-indigo-400 hover:text-indigo-300">
+                      <p className="text-xs text-ink-secondary">JPG, PNG or GIF. Max size 2MB.</p>
+                      <button type="button" className="mt-2 text-xs font-bold text-gold-400 hover:text-gold-300">
                         Change Photo
                       </button>
                     </div>
@@ -251,75 +251,75 @@ export default function SettingsPage() {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Display Name</label>
+                      <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Display Name</label>
                       <input
                         type="text"
                         value={formData.displayName}
                         onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                        className="input-galerie w-full"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Role</label>
-                      <div className="w-full px-4 py-3 bg-white/10 border border-white/5 rounded-xl text-indigo-400 font-bold uppercase tracking-tighter cursor-not-allowed">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Role</label>
+                      <div className="w-full px-4 py-3 bg-surface-raised/70 border border-border-subtle rounded-xl text-gold-400 font-bold uppercase tracking-tighter cursor-not-allowed">
                         {userData?.role || 'Guest'}
                       </div>
                     </div>
                   </div>
 
                   {userData?.role === 'artist' && (
-                    <div className="space-y-2 text-white">
-                      <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Bio</label>
+                    <div className="space-y-2 text-ink">
+                      <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Bio</label>
                       <textarea
                         rows={4}
                         value={formData.bio}
                         onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 transition-all resize-none"
+                        className="input-galerie w-full resize-none"
                         placeholder="Tell the world about your artistic journey..."
                       />
                     </div>
                   )}
 
-                  <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center gap-4">
+                  <div className="pt-4 border-t border-border-subtle flex flex-col sm:flex-row items-center gap-4">
                     <button
                       type="submit"
                       disabled={mutation.isPending}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 disabled:bg-indigo-800"
+                      className="btn-gold w-full"
                     >
                       {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       Save Changes
                     </button>
-                    {success && <p className="text-sm text-emerald-400 font-medium">✓ {success}</p>}
-                    {error && <p className="text-sm text-rose-400 font-medium">✗ {error}</p>}
+                    {success && <p className="text-sm text-emerald font-medium">✓ {success}</p>}
+                    {error && <p className="text-sm text-rose font-medium">✗ {error}</p>}
                   </div>
                 </form>
               )}
 
               {activeTab === 'Account' && (
-                <div className="space-y-8 text-white">
+                <div className="space-y-8 text-ink">
                   <div>
-                    <h2 className="text-xl font-bold text-white mb-4">Account Information</h2>
+                    <h2 className="font-display text-xl font-semibold text-ink mb-4">Account Information</h2>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
-                        <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-slate-400 flex items-center justify-between">
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Email Address</label>
+                        <div className="px-4 py-3 bg-surface border border-border-subtle rounded-xl shadow-card text-ink-secondary flex items-center justify-between">
                           <span>{userData?.email}</span>
-                          <span className="text-[10px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Verified</span>
+                          <span className="text-[10px] font-bold uppercase text-emerald bg-emerald-muted px-2 py-0.5 rounded">Verified</span>
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Account ID</label>
-                        <div className="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-slate-600 font-mono text-xs overflow-hidden truncate">
+                        <label className="text-xs font-semibold uppercase tracking-widest text-ink-secondary">Account ID</label>
+                        <div className="px-4 py-3 bg-surface border border-border-subtle rounded-xl shadow-card text-ink-secondary font-mono text-xs overflow-hidden truncate">
                           {userData?.id}
                         </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="pt-8 border-t border-white/5">
-                    <h2 className="text-xl font-bold text-rose-500 mb-2">Danger Zone</h2>
-                    <p className="text-slate-400 text-sm mb-4">Permanently delete your account and all associated data.</p>
-                    <button className="px-6 py-3 border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl text-sm font-bold transition-all">
+                  <div className="pt-8 border-t border-border-subtle">
+                    <h2 className="font-display text-xl font-semibold text-rose mb-2">Danger Zone</h2>
+                    <p className="text-ink-secondary text-sm mb-4">Permanently delete your account and all associated data.</p>
+                    <button className="btn-gold">
                       Delete Account
                     </button>
                   </div>
@@ -327,37 +327,37 @@ export default function SettingsPage() {
               )}
 
               {activeTab === 'Notifications' && (
-                <div className="space-y-6 text-white">
-                  <h2 className="text-xl font-bold mb-6">Email Preferences</h2>
+                <div className="space-y-6 text-ink">
+                  <h2 className="font-display text-xl font-semibold mb-6">Email Preferences</h2>
                   {[
                     { title: 'New Artworks', desc: 'Get notified when artists you follow publish new pieces.', active: true },
                     { title: 'Market Updates', desc: 'Trending artists and marketplace highlights.', active: false },
                     { title: 'Order History', desc: 'Purchase confirmations and shipping updates.', active: true },
                     { title: 'Security Alerts', desc: 'Important notice about your account security.', active: true },
                   ].map((item) => (
-                    <div key={item.title} className="flex items-center justify-between p-5 bg-white/3 border border-white/5 rounded-2xl hover:bg-white/5 transition-all">
+                    <div key={item.title} className="flex items-center justify-between p-5 bg-surface/40 border border-border-subtle rounded-2xl hover:bg-surface/60 transition-all">
                       <div className="pr-4">
                         <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-                        <p className="text-xs text-slate-500">{item.desc}</p>
+                        <p className="text-xs text-ink-secondary">{item.desc}</p>
                       </div>
-                      <div className={`w-12 h-6 rounded-full relative p-1 transition-colors ${item.active ? 'bg-indigo-600' : 'bg-slate-800'}`}>
-                        <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${item.active ? 'translate-x-6' : 'translate-x-0'}`} />
+                      <div className={`w-12 h-6 rounded-full relative p-1 transition-colors ${item.active ? 'bg-gold-500' : 'bg-surface-raised'}`}>
+                        <div className={`w-4 h-4 bg-canvas-50 rounded-full shadow-sm transition-transform ${item.active ? 'translate-x-6' : 'translate-x-0'}`} />
                       </div>
                     </div>
                   ))}
-                  <button className="w-full sm:w-auto px-8 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all border border-white/10 mt-4">
+                  <button className="btn-gold w-full">
                     Update Preferences
                   </button>
                 </div>
               )}
 
               {(activeTab === 'Security' || activeTab === 'Payments') && (
-                <div className="flex flex-col items-center justify-center py-24 text-center text-white">
-                  <div className="w-20 h-20 rounded-3xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20">
+                <div className="flex flex-col items-center justify-center py-24 text-center text-ink">
+                  <div className="w-20 h-20 rounded-3xl bg-gold-muted flex items-center justify-center text-gold-400 mb-6 border border-gold/20">
                     <Shield className="w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-black mb-3">{activeTab} Hub</h3>
-                  <p className="text-slate-500 max-w-sm text-sm">
+                  <h3 className="text-2xl font-bold mb-3">{activeTab} Hub</h3>
+                  <p className="text-ink-secondary max-w-sm text-sm">
                     This section is currently being integrated with our secure provider. 
                     Check back soon for advanced {activeTab.toLowerCase()} management.
                   </p>

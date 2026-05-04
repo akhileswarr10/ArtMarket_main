@@ -12,11 +12,11 @@ export default function CartIcon() {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="p-2 text-slate-400 hover:text-white transition-colors relative"
+        className="p-2 text-ink-secondary hover:text-ink transition-colors relative"
       >
         <ShoppingBag className="w-5 h-5" />
         {totalCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-slate-950">
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold-500 text-ink text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-canvas-950">
             {totalCount}
           </span>
         )}

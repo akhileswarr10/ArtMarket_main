@@ -28,36 +28,36 @@ function CheckoutSuccessContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
-        <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+      <div className="min-h-screen bg-canvas-950 flex flex-col items-center justify-center p-6 text-center text-ink">
+        <Loader2 className="w-12 h-12 text-gold-500 animate-spin mb-4" />
         <p className="animate-pulse">Finalizing your order...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 pt-20 px-6 flex flex-col items-center justify-center text-center">
+    <div className="min-h-screen bg-canvas-950 pt-20 px-6 flex flex-col items-center justify-center text-center">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-24 h-24 rounded-full bg-emerald-500/10 flex items-center justify-center mb-8"
+        className="w-24 h-24 rounded-full bg-emerald-muted flex items-center justify-center mb-8"
       >
-        <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+        <CheckCircle2 className="w-12 h-12 text-emerald" />
       </motion.div>
-      <h1 className="text-4xl font-black text-white mb-4">Payment Successful!</h1>
-      <p className="text-slate-400 max-w-md mx-auto mb-10 text-lg">
+      <h1 className="font-display text-5xl font-bold text-ink mb-4">Payment Successful!</h1>
+      <p className="text-ink-secondary max-w-md mx-auto mb-10 text-lg">
         Thank you for your acquisition. The artists have been notified and will prepare your pieces for shipping.
       </p>
       <div className="flex gap-4">
         <button 
           onClick={() => router.push('/buyer/dashboard')}
-          className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-indigo-500/20"
+          className="px-8 py-4 bg-gold-500 hover:bg-gold-500 text-ink font-bold rounded-2xl transition-all shadow-xl shadow-gold-sm"
         >
           Go to Dashboard
         </button>
         <button 
           onClick={() => router.push(`/orders/${orderId}`)}
-          className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl transition-all flex items-center gap-2"
+          className="px-8 py-4 bg-surface/60 hover:bg-surface-raised/70 text-ink font-bold rounded-2xl transition-all flex items-center gap-2"
         >
           <FileText className="w-4 h-4" />
           View Receipt
@@ -70,8 +70,8 @@ function CheckoutSuccessContent() {
 export default function CheckoutSuccessPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+      <div className="min-h-screen bg-canvas-950 flex items-center justify-center">
+        <Loader2 className="w-7 h-7 text-gold-500 animate-spin" />
       </div>
     }>
       <CheckoutSuccessContent />

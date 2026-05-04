@@ -193,14 +193,14 @@ export default function ArtworkEditPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+      <div className="min-h-screen bg-canvas-950 flex items-center justify-center">
+        <Loader2 className="w-7 h-7 text-gold-500 animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8 pt-24">
+    <div className="min-h-screen bg-canvas-950 text-ink p-8 pt-24">
       <div className="max-w-3xl mx-auto relative z-10">
         {/* Success Overlay */}
         <AnimatePresence>
@@ -208,14 +208,14 @@ export default function ArtworkEditPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-canvas-950/80 backdrop-blur-md"
             >
-              <div className="bg-slate-900 border border-white/10 rounded-3xl p-12 text-center max-w-sm">
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-emerald-400" />
+              <div className="bg-surface border border-border rounded-3xl p-12 text-center max-w-sm">
+                <div className="w-16 h-16 bg-emerald-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-emerald" />
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">Changes Saved</h2>
-                <p className="text-slate-400 text-sm">Your artwork listing has been updated.</p>
+                <h2 className="font-display text-xl font-semibold text-ink mb-2">Changes Saved</h2>
+                <p className="text-ink-secondary text-sm">Your artwork listing has been updated.</p>
               </div>
             </motion.div>
           )}
@@ -226,22 +226,22 @@ export default function ArtworkEditPage() {
           <div className="flex items-center gap-4">
              <button
               onClick={() => router.back()}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 transition-all"
+              className="p-2 rounded-xl bg-surface/60 hover:bg-surface-raised/70 text-ink-secondary transition-all"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-3xl font-black text-white">Edit Masterpiece</h1>
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
-                  artworkStatus === 'published' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' :
+                <h1 className="font-display text-4xl font-bold text-ink">Edit Masterpiece</h1>
+                <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                  artworkStatus === 'published' ? 'bg-emerald-500/20 text-emerald border border-emerald-500/20' :
                   artworkStatus === 'draft' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/20' :
-                  'bg-slate-500/20 text-slate-400 border border-slate-500/20'
+                  'bg-slate-500/20 text-ink-secondary border border-slate-500/20'
                 }`}>
                   {artworkStatus}
                 </span>
               </div>
-              <p className="text-slate-400 text-sm">Update the details of your listed artwork</p>
+              <p className="text-ink-secondary text-sm">Update the details of your listed artwork</p>
             </div>
           </div>
         </header>
@@ -249,18 +249,18 @@ export default function ArtworkEditPage() {
         <div className="grid md:grid-cols-3 gap-12">
            {/* Left Sidebar / Info */}
            <div className="space-y-6">
-              <div className="p-6 bg-white/5 border border-white/10 rounded-[2rem]">
-                 <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-4">
+              <div className="p-6 bg-surface border border-border-subtle rounded-3xl shadow-card">
+                 <div className="w-10 h-10 rounded-xl bg-gold-muted flex items-center justify-center text-gold-400 mb-4">
                     <Sparkles className="w-5 h-5" />
                  </div>
-                 <h3 className="font-bold text-sm mb-2 text-white">Curator Tip</h3>
-                 <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+                 <h3 className="font-bold text-sm mb-2 text-ink">Curator Tip</h3>
+                 <p className="text-[11px] text-ink-secondary leading-relaxed mb-6">
                    High-quality descriptions and accurate pricing increase the chances of acquisition by collectors.
                  </p>
                  <button
                    disabled={isGeneratingAI || isSold}
                    onClick={generateAISuggestions}
-                   className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 disabled:opacity-50 text-sm"
+                   className="w-full py-3 bg-gradient-to-r from-copper to-gold-600 hover:from-copper hover:to-gold-500 text-ink font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-gold-500/25 disabled:opacity-50 text-sm"
                  >
                    {isGeneratingAI ? (
                      <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
@@ -282,88 +282,88 @@ export default function ArtworkEditPage() {
 
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Artwork Title</label>
+                  <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Artwork Title</label>
                   <input
                     disabled={isSold}
                     type="text"
                     value={title}
                     onChange={e => setTitle(e.target.value)}
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                    className="input-galerie w-full"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Price (GBP £)</label>
+                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Price (GBP £)</label>
                     <div className="relative">
-                      <PoundSterling className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                      <PoundSterling className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary" />
                       <input
                         disabled={isSold}
                         type="number"
                         value={price}
                         onChange={e => setPrice(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                        className="input-galerie w-full"
                       />
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Medium</label>
+                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Medium</label>
                     <div className="relative">
-                      <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                      <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary" />
                       <input
                         disabled={isSold}
                         type="text"
                         value={medium}
                         onChange={e => setMedium(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                        className="input-galerie w-full"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Description</label>
+                  <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Description</label>
                   <textarea
                     disabled={isSold}
                     rows={4}
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all resize-none"
+                    className="input-galerie w-full resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Style</label>
+                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Style</label>
                     <input
                       disabled={isSold}
                       type="text"
                       value={style}
                       onChange={e => setStyle(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="input-galerie w-full"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Dimensions</label>
+                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Dimensions</label>
                     <input
                       disabled={isSold}
                       type="text"
                       value={dimensions}
                       onChange={e => setDimensions(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="input-galerie w-full"
                     />
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3 h-3" />Tags</label>
-                  <div className="flex flex-wrap gap-2 p-3 bg-white/5 border border-white/10 rounded-2xl min-h-[52px]">
+                  <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest flex items-center gap-1.5"><Tag className="w-3 h-3" />Tags</label>
+                  <div className="flex flex-wrap gap-2 p-3 bg-surface border border-border-subtle rounded-2xl shadow-card min-h-[52px]">
                     {tags.map((tag, i) => (
-                      <span key={i} className="flex items-center gap-1 px-3 py-1 bg-indigo-500/15 text-indigo-300 text-xs font-semibold rounded-lg border border-indigo-500/20">
+                      <span key={i} className="flex items-center gap-1 px-3 py-1 bg-gold-500/15 text-gold-300 text-xs font-semibold rounded-lg border border-gold/20">
                         #{tag}
                         {!isSold && (
-                          <button onClick={() => setTags(tags.filter((_, idx) => idx !== i))} className="text-indigo-400/60 hover:text-rose-400 transition-colors">
+                          <button onClick={() => setTags(tags.filter((_, idx) => idx !== i))} className="text-gold-400/60 hover:text-rose transition-colors">
                             <X className="w-3 h-3" />
                           </button>
                         )}
@@ -383,17 +383,17 @@ export default function ArtworkEditPage() {
                           }
                         }}
                         placeholder={tags.length === 0 ? 'Add tags (press Enter or ,)' : '+ add more...'}
-                        className="flex-1 min-w-[120px] bg-transparent text-white text-xs outline-none placeholder:text-slate-600"
+                        className="input-galerie"
                       />
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-4">
+              <div className="pt-6 border-t border-border-subtle flex flex-col sm:flex-row gap-4">
                  <button
                    onClick={() => router.back()}
-                   className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl transition-all"
+                   className="flex-1 py-4 bg-surface/60 hover:bg-surface-raised/70 text-ink font-bold rounded-2xl transition-all"
                  >
                    Discard
                  </button>
@@ -402,7 +402,7 @@ export default function ArtworkEditPage() {
                    <button
                      disabled={status === 'saving' || isSold}
                      onClick={handlePublish}
-                     className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20"
+                     className="btn-gold"
                    >
                      {status === 'saving' ? (
                        <Loader2 className="w-5 h-5 animate-spin" />
@@ -418,7 +418,7 @@ export default function ArtworkEditPage() {
                  <button
                    disabled={status === 'saving' || isSold}
                    onClick={handleSubmit}
-                   className={`${artworkStatus === 'draft' ? 'flex-1' : 'flex-[2]'} py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/20`}
+                   className={`${artworkStatus === 'draft' ? 'flex-1' : 'flex-[2]'} py-4 bg-gold-500 hover:bg-gold-500 text-ink font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-gold-sm`}
                  >
                    {status === 'saving' ? (
                      <Loader2 className="w-5 h-5 animate-spin" />

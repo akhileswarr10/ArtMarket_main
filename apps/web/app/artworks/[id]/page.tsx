@@ -149,12 +149,12 @@ export default function ArtworkDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-canvas-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Palette className="w-8 h-8 text-indigo-400" />
+          <div className="w-16 h-16 rounded-2xl bg-gold-muted flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Palette className="w-8 h-8 text-gold-400" />
           </div>
-          <p className="text-slate-500 text-sm">Loading masterpiece...</p>
+          <p className="text-ink-secondary text-sm">Loading masterpiece...</p>
         </div>
       </div>
     )
@@ -162,15 +162,15 @@ export default function ArtworkDetailPage() {
 
   if (error || !artwork) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-canvas-950 flex flex-col items-center justify-center p-6">
         <div className="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6">
           <AlertCircle className="w-10 h-10 text-red-400" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Artwork Unavailable</h1>
-        <p className="text-slate-400 text-sm mb-8">This piece may have been removed or set to private.</p>
+        <h1 className="font-display text-2xl font-semibold text-ink mb-2">Artwork Unavailable</h1>
+        <p className="text-ink-secondary text-sm mb-8">This piece may have been removed or set to private.</p>
         <button
           onClick={() => router.back()}
-          className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-semibold transition-all text-sm"
+          className="px-6 py-3 bg-surface/60 hover:bg-surface-raised/70 border border-border rounded-xl text-ink font-semibold transition-all text-sm"
         >
           Go Back
         </button>
@@ -183,7 +183,7 @@ export default function ArtworkDetailPage() {
   const primaryImage = artwork.images?.find(i => i.is_primary) || artwork.images?.[0]
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-canvas-950 text-ink">
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {showDeleteConfirm && (
@@ -191,30 +191,30 @@ export default function ArtworkDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-canvas-950/80 backdrop-blur-md"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-white/10 p-8 rounded-[2.5rem] max-w-sm w-full text-center"
+              className="bg-surface border border-border p-8 rounded-[2.5rem] max-w-sm w-full text-center"
             >
               <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Trash2 className="w-8 h-8 text-red-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Remove Listing?</h3>
-              <p className="text-slate-400 text-sm mb-8">This action will permanently remove the artwork from the marketplace. This cannot be undone.</p>
+              <h3 className="font-display text-xl font-semibold text-ink mb-2">Remove Listing?</h3>
+              <p className="text-ink-secondary text-sm mb-8">This action will permanently remove the artwork from the marketplace. This cannot be undone.</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all"
+                  className="flex-1 px-4 py-3 bg-surface/60 hover:bg-surface-raised/70 text-ink rounded-xl transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                  className="btn-gold"
                 >
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}
                 </button>
@@ -224,22 +224,22 @@ export default function ArtworkDetailPage() {
         )}
       </AnimatePresence>
 
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-canvas-950/80 backdrop-blur-xl border-b border-border-subtle">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group"
+            className="flex items-center gap-2 text-ink-secondary hover:text-ink transition-colors text-sm group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Back
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white">
+            <div className="w-8 h-8 bg-gradient-to-br from-gold-600 to-copper rounded-xl flex items-center justify-center text-ink">
               <Palette className="w-4 h-4" />
             </div>
-            <span className="font-bold text-white tracking-tight">ArtMarket</span>
+            <span className="font-bold text-ink tracking-tight">ArtMarket</span>
           </div>
-          <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all">
+          <button className="p-2 rounded-xl bg-surface/60 hover:bg-surface-raised/70 text-ink-secondary hover:text-ink transition-all">
             <Share2 className="w-4 h-4" />
           </button>
         </div>
@@ -252,7 +252,7 @@ export default function ArtworkDetailPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="aspect-[4/5] bg-slate-900 border border-white/10 rounded-3xl overflow-hidden relative group"
+              className="aspect-[4/5] bg-surface border border-border rounded-3xl overflow-hidden relative group"
             >
               <AnimatePresence mode="wait">
                 <motion.img
@@ -274,7 +274,7 @@ export default function ArtworkDetailPage() {
                     key={img.id}
                     onClick={() => setSelectedImage(i)}
                     className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                      selectedImage === i ? 'border-indigo-500 scale-105' : 'border-white/10 opacity-50'
+                      selectedImage === i ? 'border-gold-500 scale-105' : 'border-border opacity-50'
                     }`}
                   >
                     <img src={img.signed_url || ''} alt="" className="w-full h-full object-cover" />
@@ -291,36 +291,36 @@ export default function ArtworkDetailPage() {
             className="space-y-8 pt-4"
           >
             <div className="flex items-center justify-between">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+              <div className="badge-emerald">
                 <ShieldCheck className="w-3 h-3" />
                 Verified Original
               </div>
               {artwork.status === 'sold' && (
-                <div className="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+                <div className="badge-gold">
                   Sold Out
                 </div>
               )}
             </div>
 
             <div>
-              <h1 className="text-5xl font-black text-white leading-none tracking-tight mb-6">
+              <h1 className="font-display text-6xl font-bold text-ink leading-none tracking-tight mb-6">
                 {artwork.title}
               </h1>
               <div className="flex items-center gap-6">
-                <p className="text-3xl font-black text-emerald-400 tracking-tighter">
+                <p className="font-mono text-3xl font-semibold text-emerald tracking-tighter">
                   {artwork.price !== null ? `£${artwork.price.toLocaleString()}` : 'Price Pending'}
                 </p>
-                <div className="h-4 w-px bg-white/10" />
-                <div className="flex items-center gap-2 text-slate-500 font-bold uppercase text-[10px] tracking-widest">
-                  <Eye className="w-4 h-4 text-slate-600" />
+                <div className="h-4 w-px bg-surface-raised/70" />
+                <div className="flex items-center gap-2 text-ink-secondary font-bold uppercase text-[10px] tracking-widest">
+                  <Eye className="w-4 h-4 text-ink-secondary" />
                   {artwork.view_count} Impressions
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8">
-              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Curator's Note</h3>
-              <p className="text-slate-300 leading-relaxed text-sm">{artwork.description || 'No description provided.'}</p>
+            <div className="bg-surface border border-border-subtle rounded-3xl shadow-card p-8">
+              <h3 className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-4">Curator's Note</h3>
+              <p className="text-ink-muted leading-relaxed text-sm">{artwork.description || 'No description provided.'}</p>
             </div>
 
             {/* Tags */}
@@ -330,9 +330,9 @@ export default function ArtworkDetailPage() {
                   <button
                     key={tag.id}
                     onClick={() => router.push(`/artworks?tag_name=${encodeURIComponent(tag.name)}`)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold rounded-lg hover:bg-indigo-500/25 hover:border-indigo-500/40 transition-all"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-gold-muted border border-gold/20 text-gold-300 text-xs font-semibold rounded-lg hover:bg-gold-500/25 hover:border-gold-500/40 transition-all"
                   >
-                    <span className="text-indigo-500/60">#</span>{tag.name}
+                    <span className="text-gold-500/60">#</span>{tag.name}
                   </button>
                 ))}
               </div>
@@ -343,10 +343,10 @@ export default function ArtworkDetailPage() {
                 { label: 'Medium', value: artwork.medium || 'Not specified', icon: Palette },
                 { label: 'Dimensions', value: artwork.dimensions || 'Not specified', icon: Maximize2 },
               ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="bg-white/2 border border-white/5 rounded-2xl p-5">
-                  <Icon className="w-4 h-4 text-slate-600 mb-3" />
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
-                  <p className="font-bold text-white text-sm">{value}</p>
+                <div key={label} className="bg-surface/30 border border-border-subtle rounded-2xl p-5">
+                  <Icon className="w-4 h-4 text-ink-secondary mb-3" />
+                  <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1">{label}</p>
+                  <p className="font-bold text-ink text-sm">{value}</p>
                 </div>
               ))}
             </div>
@@ -358,7 +358,7 @@ export default function ArtworkDetailPage() {
                   <button
                     disabled={!canManage}
                     onClick={() => router.push(`/artist/artworks/${params.id}/edit`)}
-                    className="flex-1 py-4 bg-white text-slate-900 font-black rounded-2xl transition-all hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-canvas-50 text-ink font-bold rounded-2xl transition-all hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <Edit3 className="w-4 h-4" />
                     Edit Details
@@ -372,7 +372,7 @@ export default function ArtworkDetailPage() {
                   </button>
                 </>
               ) : artwork.status === 'sold' ? (
-                <div className="flex-1 py-4 bg-slate-900 text-slate-600 font-black rounded-2xl border border-white/5 flex items-center justify-center gap-2 uppercase tracking-widest cursor-not-allowed">
+                <div className="flex-1 py-4 bg-surface text-ink-secondary font-bold rounded-2xl border border-border-subtle flex items-center justify-center gap-2 uppercase tracking-widest cursor-not-allowed">
                   <Package className="w-4 h-4" />
                   Item Sold
                 </div>
@@ -386,13 +386,7 @@ export default function ArtworkDetailPage() {
                   <button
                     onClick={handleAddToCart}
                     disabled={isAdding || artwork.status !== 'published' || artwork.price === null}
-                    className={`flex-1 py-4 font-black rounded-2xl transition-all flex items-center justify-center gap-2 ${
-                      added 
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                        : (artwork.status !== 'published' || artwork.price === null)
-                          ? 'bg-white/5 text-slate-600 border border-white/10 cursor-not-allowed'
-                          : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
-                    }`}
+                    className="btn-gold"
                   >
                     {isAdding ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -409,7 +403,7 @@ export default function ArtworkDetailPage() {
                   <button
                     disabled={artwork.status !== 'published' || artwork.price === null}
                     onClick={() => router.push(`/purchase?artworkId=${artwork.id}`)}
-                    className="flex-1 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 py-4 bg-gradient-to-r from-gold-600 to-copper hover:from-gold-500 hover:to-copper text-ink font-bold rounded-2xl shadow-xl shadow-gold-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Buy Now
                     <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
@@ -418,12 +412,12 @@ export default function ArtworkDetailPage() {
               )}
             </div>
 
-            <div className="p-6 bg-slate-900/50 border border-white/5 rounded-[2rem] flex gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center shrink-0">
-                 <Sparkles className="w-6 h-6 text-indigo-400" />
+            <div className="p-6 bg-slate-900/50 border border-border-subtle rounded-[2rem] flex gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gold-muted flex items-center justify-center shrink-0">
+                 <Sparkles className="w-6 h-6 text-gold-400" />
               </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
-                Our <span className="text-indigo-400">Masterpiece Verification</span> system ensures this artwork is a unique original from the artist. 
+              <p className="text-[11px] text-ink-secondary leading-relaxed font-medium">
+                Our <span className="text-gold-400">Masterpiece Verification</span> system ensures this artwork is a unique original from the artist. 
                 All transactions are encrypted and recorded on your private collector receipt.
               </p>
             </div>

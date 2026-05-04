@@ -21,21 +21,21 @@ function StatCard({ label, value, icon: Icon, color, loading }: any) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 hover:bg-white/8 transition-colors"
+      className="bg-surface/60 border border-border rounded-[2.5rem] p-8 hover:border-border-strong hover:shadow-card-hover transition-all duration-300"
     >
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${
-        color === 'indigo' ? 'bg-indigo-500/10 text-indigo-400' :
-        color === 'emerald' ? 'bg-emerald-500/10 text-emerald-400' :
+        color === 'indigo' ? 'bg-gold-muted text-gold-400' :
+        color === 'emerald' ? 'bg-emerald-muted text-emerald' :
         color === 'amber' ? 'bg-amber-500/10 text-amber-400' :
-        'bg-violet-500/10 text-violet-400'
+        'bg-copper/10 text-copper'
       }`}>
         <Icon className="w-7 h-7" />
       </div>
       <div>
-        <p className="text-4xl font-black text-white tracking-tighter">
+        <p className="font-display text-5xl font-bold text-ink tracking-tighter">
           {loading ? <Loader2 className="w-8 h-8 animate-spin" /> : value}
         </p>
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-2">{label}</p>
+        <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-[0.2em] mt-2">{label}</p>
       </div>
     </motion.div>
   )
@@ -44,12 +44,12 @@ function StatCard({ label, value, icon: Icon, color, loading }: any) {
 function SectionHeading({ title, subtitle, icon: Icon, color }: any) {
   return (
     <div className="flex items-center gap-6 mb-12">
-      <div className={`p-4 ${color} rounded-[1.5rem] shadow-lg shadow-indigo-500/20`}>
-        <Icon className="w-8 h-8 text-white" />
+      <div className={`p-4 ${color} rounded-[1.5rem] shadow-lg shadow-gold-sm`}>
+        <Icon className="w-8 h-8 text-ink" />
       </div>
       <div>
-        <h2 className="text-3xl font-black tracking-tight text-white mb-1">{title}</h2>
-        <p className="text-slate-500 font-medium text-sm tracking-wide">{subtitle}</p>
+        <h2 className="font-display text-4xl font-bold tracking-tight text-ink mb-1">{title}</h2>
+        <p className="text-ink-secondary font-medium text-sm tracking-wide">{subtitle}</p>
       </div>
     </div>
   )
@@ -62,8 +62,8 @@ const RoleSelector = ({ currentRole, onSelect }: { currentRole: string, onSelect
 
   const roles = [
     { value: 'buyer', label: 'Buyer', color: 'text-sky-400', bg: 'bg-sky-400/10' },
-    { value: 'artist', label: 'Artist', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-    { value: 'admin', label: 'Admin', color: 'text-rose-400', bg: 'bg-rose-400/10' },
+    { value: 'artist', label: 'Artist', color: 'text-emerald', bg: 'bg-emerald-400/10' },
+    { value: 'admin', label: 'Admin', color: 'text-rose', bg: 'bg-rose-400/10' },
   ]
 
   const active = roles.find(r => r.value === currentRole) || roles[0]
@@ -81,13 +81,13 @@ const RoleSelector = ({ currentRole, onSelect }: { currentRole: string, onSelect
       <button 
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:bg-white/10 transition-all min-w-[130px] justify-between group"
+        className="flex items-center gap-3 bg-surface border border-border-subtle rounded-xl shadow-card px-4 py-2 hover:bg-surface-raised/70 min-w-[130px] justify-between group hover:border-border-strong hover:shadow-card-hover transition-all duration-300"
       >
         <div className="flex items-center gap-2">
            <div className={`w-1.5 h-1.5 rounded-full ${active.bg.replace('/10', '')} shadow-[0_0_8px] shadow-current`} />
-           <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-100">{active.label}</span>
+           <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-100">{active.label}</span>
         </div>
-        <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3 h-3 text-ink-secondary transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <AnimatePresence>
@@ -98,11 +98,11 @@ const RoleSelector = ({ currentRole, onSelect }: { currentRole: string, onSelect
               initial={{ opacity: 0, y: openUp ? -8 : 8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: openUp ? -8 : 8, scale: 0.95 }}
-              className={`absolute right-0 ${openUp ? 'bottom-full mb-3' : 'top-full mt-3'} w-48 bg-slate-900/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-3 z-50 shadow-[0_20px_50px_rgba(0,0,0,1)]`}
+              className={`absolute right-0 ${openUp ? 'bottom-full mb-3' : 'top-full mt-3'} w-48 bg-slate-900/95 backdrop-blur-3xl border border-border rounded-[2.5rem] p-3 z-50 shadow-[0_20px_50px_rgba(0,0,0,1)]`}
               style={{ originY: openUp ? 1 : 0 }}
             >
-              <div className="px-3 py-2 border-b border-white/5 mb-2">
-                 <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Select Role</p>
+              <div className="px-3 py-2 border-b border-border-subtle mb-2">
+                 <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Select Role</p>
               </div>
               {roles.map(role => (
                 <button
@@ -111,10 +111,10 @@ const RoleSelector = ({ currentRole, onSelect }: { currentRole: string, onSelect
                     onSelect(role.value)
                     setIsOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[1.5rem] transition-all hover:bg-white/5 group ${currentRole === role.value ? 'bg-white/5' : ''}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-[1.5rem] transition-all hover:bg-surface/60 group ${currentRole === role.value ? 'bg-surface/60' : ''}`}
                 >
                   <div className={`w-2 h-2 rounded-full ${role.bg.replace('/10', '')} ${currentRole === role.value ? 'scale-125' : 'scale-100 opacity-40 group-hover:opacity-100'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${currentRole === role.value ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}>
+                  <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${currentRole === role.value ? 'text-ink' : 'text-ink-secondary group-hover:text-ink-muted'}`}>
                     {role.label}
                   </span>
                 </button>
@@ -272,14 +272,14 @@ export default function AdminDashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex">
+    <div className="min-h-screen bg-canvas-950 text-ink flex">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl flex flex-col p-6 fixed h-full z-50">
+      <aside className="w-72 border-r border-border-subtle bg-canvas-950/50 backdrop-blur-xl flex flex-col p-6 fixed h-full z-50">
         <div className="flex items-center gap-3 mb-12 px-2">
-          <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 bg-gold-500 rounded-xl flex items-center justify-center shadow-lg shadow-gold-sm">
+            <ShieldCheck className="w-6 h-6 text-ink" />
           </div>
-          <span className="font-black text-xl tracking-tight">ADMIN</span>
+          <span className="font-bold text-xl tracking-tight">ADMIN</span>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -291,14 +291,14 @@ export default function AdminDashboardPage() {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
                   isActive 
-                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' 
-                    : 'text-slate-500 hover:text-white hover:bg-white/5'
+                    ? 'bg-gold-muted text-gold-400 border border-gold/20' 
+                    : 'text-ink-secondary hover:text-ink hover:bg-surface/60'
                 }`}
               >
                 <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                 <span className="font-bold text-sm tracking-wide">{item.name}</span>
                 {isActive && (
-                  <motion.div layoutId="activeTab" className="ml-auto w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+                  <motion.div layoutId="activeTab" className="ml-auto w-1.5 h-1.5 bg-gold-400 rounded-full" />
                 )}
               </button>
             )
@@ -307,7 +307,7 @@ export default function AdminDashboardPage() {
 
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-4 mt-auto rounded-2xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20 group"
+          className="btn-gold"
         >
           <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           <span className="font-bold text-sm">System Exit</span>
@@ -318,15 +318,15 @@ export default function AdminDashboardPage() {
       <main className="flex-1 ml-72 p-10 min-h-screen">
         <header className="flex items-center justify-between mb-12">
            <div>
-              <h2 className="text-4xl font-black text-white tracking-tight">
+              <h2 className="font-display text-5xl font-bold text-ink tracking-tight">
                 {navigation.find(n => n.id === activeTab)?.name} Center
               </h2>
-              <p className="text-slate-500 font-medium mt-1">Platform-wide oversight and data management</p>
+              <p className="text-ink-secondary font-medium mt-1">Platform-wide oversight and data management</p>
            </div>
            <div className="flex items-center gap-4">
               <div className="px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex items-center gap-2">
-                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                 <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Live Sync Alpha</span>
+                 <div className="w-2 h-2 bg-emerald rounded-full animate-pulse" />
+                 <span className="text-[10px] font-bold text-emerald uppercase tracking-widest">Live Sync Alpha</span>
               </div>
            </div>
         </header>
@@ -349,31 +349,31 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-8">
-                 <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10">
-                    <SectionHeading title="System Health" subtitle="Global performance metrics" icon={Activity} color="bg-indigo-500" />
+                 <div className="bg-surface/60 border border-border rounded-[2.5rem] p-10">
+                    <SectionHeading title="System Health" subtitle="Global performance metrics" icon={Activity} color="bg-gold-500" />
                     <div className="space-y-6">
                        <div>
-                          <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-3">
+                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-ink-secondary mb-3">
                              <span>Database Throughput</span>
-                             <span className="text-emerald-500">Perfect</span>
+                             <span className="text-emerald">Perfect</span>
                           </div>
-                          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                             <motion.div initial={{ width: 0 }} animate={{ width: '24%' }} className="h-full bg-emerald-500" />
+                          <div className="h-2 bg-surface/60 rounded-full overflow-hidden">
+                             <motion.div initial={{ width: 0 }} animate={{ width: '24%' }} className="h-full bg-emerald" />
                           </div>
                        </div>
                        <div>
-                          <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-3">
+                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-ink-secondary mb-3">
                              <span>Object Storage</span>
                              <span>64% capacity</span>
                           </div>
-                          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                             <motion.div initial={{ width: 0 }} animate={{ width: '64%' }} className="h-full bg-indigo-500" />
+                          <div className="h-2 bg-surface/60 rounded-full overflow-hidden">
+                             <motion.div initial={{ width: 0 }} animate={{ width: '64%' }} className="h-full bg-gold-500" />
                           </div>
                        </div>
                     </div>
                  </div>
 
-                 <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10">
+                 <div className="bg-surface/60 border border-border rounded-[2.5rem] p-10">
                     <SectionHeading title="Platform Alerts" subtitle="Recent security and traffic notes" icon={ShieldAlert} color="bg-amber-500" />
                     <div className="space-y-4">
                        {[
@@ -381,9 +381,9 @@ export default function AdminDashboardPage() {
                          { msg: 'New curator registration pending', time: '5h ago', status: 'alert' },
                          { msg: 'Standard API maintenance scheduled', time: '1d ago', status: 'info' },
                        ].map((alert, i) => (
-                          <div key={i} className="flex items-center justify-between p-4 bg-white/3 rounded-2xl border border-white/5">
-                             <span className="text-sm font-medium text-slate-300">{alert.msg}</span>
-                             <span className="text-[10px] text-slate-500 font-bold">{alert.time}</span>
+                          <div key={i} className="flex items-center justify-between p-4 bg-surface/40 rounded-2xl border border-border-subtle">
+                             <span className="text-sm font-medium text-ink-muted">{alert.msg}</span>
+                             <span className="text-[10px] text-ink-secondary font-bold">{alert.time}</span>
                           </div>
                        ))}
                     </div>
@@ -397,15 +397,15 @@ export default function AdminDashboardPage() {
               key="users"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-visible min-h-[550px]"
+              className="bg-surface/60 border border-border rounded-[2.5rem] overflow-visible min-h-[550px]"
             >
-              <div className="p-8 border-b border-white/5">
+              <div className="p-8 border-b border-border-subtle">
                  <div className="relative max-w-md">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary" />
                     <input 
                       type="text" 
                       placeholder="Search users..." 
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
+                      className="input-galerie w-full"
                     />
                  </div>
               </div>
@@ -413,33 +413,33 @@ export default function AdminDashboardPage() {
                  <table className="w-full text-left">
                     <thead className="bg-white/1 px-8">
                        <tr>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">User</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">User</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Role</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Status</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest text-right">Actions</th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                        {usersLoading ? (
-                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500" /></td></tr>
+                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
                        ) : users?.map((u: any) => (
-                         <tr key={u.id} className="hover:bg-white/2 transition-colors">
+                         <tr key={u.id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
-                               <p className="font-bold text-white text-sm">{u.email}</p>
-                               <p className="text-[10px] text-slate-500 font-medium">UID: {u.id.substring(0,8)}...</p>
+                               <p className="font-bold text-ink text-sm">{u.email}</p>
+                               <p className="text-[10px] text-ink-secondary font-medium">UID: {u.id.substring(0,8)}...</p>
                             </td>
                             <td className="px-8 py-5">
-                               <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                 u.role === 'admin' ? 'bg-indigo-500/10 text-indigo-400' : 
-                                 u.role === 'artist' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-500/10 text-slate-400'
+                               <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
+                                 u.role === 'admin' ? 'bg-gold-muted text-gold-400' : 
+                                 u.role === 'artist' ? 'bg-emerald-muted text-emerald' : 'bg-slate-500/10 text-ink-secondary'
                                }`}>
                                  {u.role || 'unassigned'}
                                </span>
                             </td>
                             <td className="px-8 py-5">
                                <div className="flex items-center gap-2">
-                                  <div className={`w-1.5 h-1.5 rounded-full ${u.is_active ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                                  <span className="text-xs font-bold text-slate-400">{u.is_active ? 'Active' : 'Suspended'}</span>
+                                  <div className={`w-1.5 h-1.5 rounded-full ${u.is_active ? 'bg-emerald' : 'bg-red-500'}`} />
+                                  <span className="text-xs font-bold text-ink-secondary">{u.is_active ? 'Active' : 'Suspended'}</span>
                                </div>
                             </td>
                             <td className="px-8 py-5 text-right space-x-3 flex items-center justify-end">
@@ -456,7 +456,7 @@ export default function AdminDashboardPage() {
                                <button 
                                  onClick={() => toggleStatus.mutate({ userId: u.id, active: !u.is_active })}
                                  className={`p-2 rounded-xl transition-all border ${
-                                   u.is_active ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
+                                   u.is_active ? 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20' : 'bg-emerald-muted border-emerald-500/20 text-emerald hover:bg-emerald-500/20'
                                  }`}
                                  title={u.is_active ? 'Suspend User' : 'Reinstate User'}
                                >
@@ -476,34 +476,34 @@ export default function AdminDashboardPage() {
               key="artworks"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-visible min-h-[550px]"
+              className="bg-surface/60 border border-border rounded-[2.5rem] overflow-visible min-h-[550px]"
             >
               <div className="overflow-x-auto">
                  <table className="w-full text-left">
                     <thead className="bg-white/1 px-8">
                        <tr>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Artwork</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Creator</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Moderation</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Artwork</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Creator</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Status</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest text-right">Moderation</th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                        {artworksLoading ? (
-                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500" /></td></tr>
+                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
                        ) : artworksData?.artworks.map((a: any) => (
-                         <tr key={a.id} className="hover:bg-white/2 transition-colors">
+                         <tr key={a.id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
-                               <p className="font-bold text-white text-sm">{a.title}</p>
-                               <p className="text-[10px] text-slate-500 font-medium">ID: {a.id.substring(0,8)}</p>
+                               <p className="font-bold text-ink text-sm">{a.title}</p>
+                               <p className="text-[10px] text-ink-secondary font-medium">ID: {a.id.substring(0,8)}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <p className="text-xs font-bold text-indigo-400">{a.artist}</p>
+                               <p className="text-xs font-bold text-gold-400">{a.artist}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                                 a.status === 'published' ? 'bg-emerald-500/10 text-emerald-400' : 
-                                 a.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-500/10 text-slate-400'
+                               <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
+                                 a.status === 'published' ? 'bg-emerald-muted text-emerald' : 
+                                 a.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-500/10 text-ink-secondary'
                                }`}>
                                  {a.status}
                                </span>
@@ -511,7 +511,7 @@ export default function AdminDashboardPage() {
                             <td className="px-8 py-5 text-right space-x-2">
                                <button 
                                  onClick={() => setViewingArtworkId(a.id)}
-                                 className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl hover:bg-indigo-500/20 border border-indigo-500/10 transition-all"
+                                 className="p-2 bg-gold-muted text-gold-400 rounded-xl hover:bg-gold/[0.18] border border-gold-500/10 transition-all"
                                  title="Inspect Artwork"
                                >
                                   <Eye className="w-4 h-4" />
@@ -538,42 +538,42 @@ export default function AdminDashboardPage() {
               key="orders"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-visible min-h-[550px]"
+              className="bg-surface/60 border border-border rounded-[2.5rem] overflow-visible min-h-[550px]"
             >
               <div className="overflow-x-auto">
                  <table className="w-full text-left">
                     <thead className="bg-white/1 px-8">
                        <tr>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Order ID</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Order ID</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Amount</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Status</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Date</th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                        {ordersLoading ? (
-                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500" /></td></tr>
+                         <tr><td colSpan={4} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
                        ) : ordersData?.orders.length === 0 ? (
-                         <tr><td colSpan={4} className="p-20 text-center text-slate-500 font-bold uppercase tracking-widest">No transaction records found</td></tr>
+                         <tr><td colSpan={4} className="p-20 text-center text-ink-secondary font-bold uppercase tracking-widest">No transaction records found</td></tr>
                        ) : ordersData?.orders.map((o: any) => (
-                         <tr key={o.id} className="hover:bg-white/2 transition-colors">
+                         <tr key={o.id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
-                               <p className="font-bold text-white text-sm tracking-tight">#{o.id.substring(0,8).toUpperCase()}</p>
+                               <p className="font-bold text-ink text-sm tracking-tight">#{o.id.substring(0,8).toUpperCase()}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <p className="text-sm font-black text-white">${o.total_amount.toLocaleString()}</p>
-                               <p className="text-[10px] text-slate-500 font-bold uppercase">{o.currency}</p>
+                               <p className="text-sm font-mono font-semibold text-ink">${o.total_amount.toLocaleString()}</p>
+                               <p className="text-[10px] text-ink-secondary font-bold uppercase">{o.currency}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                                 o.status === 'paid' ? 'bg-emerald-500/10 text-emerald-400' : 
+                               <span className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${
+                                 o.status === 'paid' ? 'bg-emerald-muted text-emerald' : 
                                  o.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'
                                }`}>
                                  {o.status}
                                </span>
                             </td>
                             <td className="px-8 py-5">
-                               <p className="text-xs text-slate-400 font-bold">{new Date(o.created_at).toLocaleDateString()}</p>
+                               <p className="text-xs text-ink-secondary font-bold">{new Date(o.created_at).toLocaleDateString()}</p>
                             </td>
                          </tr>
                        ))}
@@ -587,35 +587,35 @@ export default function AdminDashboardPage() {
               key="verification"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-visible min-h-[550px]"
+              className="bg-surface/60 border border-border rounded-[2.5rem] overflow-visible min-h-[550px]"
             >
               <div className="overflow-x-auto">
                  <table className="w-full text-left">
                     <thead className="bg-white/1 px-8">
                        <tr>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Artist</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Submitted</th>
-                          <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Artist</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Submitted</th>
+                          <th className="px-8 py-5 text-[10px] font-bold text-ink-secondary uppercase tracking-widest text-right">Actions</th>
                        </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                        {verificationLoading ? (
-                         <tr><td colSpan={3} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-500" /></td></tr>
+                         <tr><td colSpan={3} className="p-20 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-gold-500" /></td></tr>
                        ) : verificationQueue?.length === 0 ? (
-                         <tr><td colSpan={3} className="p-20 text-center text-slate-500 font-bold uppercase tracking-widest">No pending applications</td></tr>
+                         <tr><td colSpan={3} className="p-20 text-center text-ink-secondary font-bold uppercase tracking-widest">No pending applications</td></tr>
                        ) : verificationQueue?.map((v: any) => (
-                         <tr key={v.artist_id} className="hover:bg-white/2 transition-colors">
+                         <tr key={v.artist_id} className="hover:bg-surface/30 transition-colors">
                             <td className="px-8 py-5">
-                               <p className="font-bold text-white text-sm">{v.display_name}</p>
-                               <p className="text-[10px] text-slate-500 font-medium">ID: {v.artist_id.substring(0,8)}</p>
+                               <p className="font-bold text-ink text-sm">{v.display_name}</p>
+                               <p className="text-[10px] text-ink-secondary font-medium">ID: {v.artist_id.substring(0,8)}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <p className="text-xs text-slate-400 font-bold">{v.verification_submitted_at ? new Date(v.verification_submitted_at).toLocaleDateString() : 'N/A'}</p>
+                               <p className="text-xs text-ink-secondary font-bold">{v.verification_submitted_at ? new Date(v.verification_submitted_at).toLocaleDateString() : 'N/A'}</p>
                             </td>
                             <td className="px-8 py-5 text-right space-x-2">
                                <button 
                                  onClick={() => approveVerification.mutate(v.artist_id)}
-                                 className="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-xl hover:bg-emerald-500/20 border border-emerald-500/10 transition-all text-xs font-black uppercase tracking-widest"
+                                 className="px-4 py-2 bg-emerald-muted text-emerald rounded-xl hover:bg-emerald-500/20 border border-emerald-500/10 transition-all text-xs font-bold uppercase tracking-widest"
                                >
                                   Approve
                                </button>
@@ -624,7 +624,7 @@ export default function AdminDashboardPage() {
                                    const reason = prompt('Reason for rejection?');
                                    if (reason) rejectVerification.mutate({ artistId: v.artist_id, reason });
                                  }}
-                                 className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 border border-red-500/10 transition-all text-xs font-black uppercase tracking-widest"
+                                 className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500/20 border border-red-500/10 transition-all text-xs font-bold uppercase tracking-widest"
                                >
                                   Reject
                                </button>
@@ -644,25 +644,25 @@ export default function AdminDashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-2xl"
             >
-               <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10">
+               <div className="bg-surface/60 border border-border rounded-[2.5rem] p-10">
                   <SectionHeading title="System Configuration" subtitle="High-security platform parameters" icon={ShieldAlert} color="bg-red-500" />
                   
                   <div className="space-y-8 mt-10">
-                     <div className="p-8 bg-white/3 rounded-3xl border border-white/5 relative overflow-hidden group">
+                     <div className="p-8 bg-surface/40 rounded-3xl border border-border-subtle relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                            <Lock className="w-12 h-12" />
                         </div>
-                        <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-500 mb-6">Admin Secret Key</h4>
+                        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-ink-secondary mb-6">Admin Secret Key</h4>
                         
                         {revealedKey ? (
                            <div className="space-y-4">
-                              <div className="flex items-center gap-4 bg-slate-950 p-4 rounded-2xl border border-white/10">
-                                 <Key className="w-5 h-5 text-indigo-400" />
+                              <div className="flex items-center gap-4 bg-canvas-950 p-4 rounded-2xl border border-border">
+                                 <Key className="w-5 h-5 text-gold-400" />
                                  <input 
                                    type="text" 
                                    value={revealedKey} 
                                    onChange={(e) => setRevealedKey(e.target.value)}
-                                   className="bg-transparent border-none focus:ring-0 text-white font-mono text-lg flex-1"
+                                   className="bg-transparent border-none focus:ring-0 text-ink font-mono text-lg flex-1"
                                  />
                                  <div className="flex items-center gap-1">
                                     <button 
@@ -671,12 +671,12 @@ export default function AdminDashboardPage() {
                                         setCopied(true)
                                         setTimeout(() => setCopied(false), 2000)
                                       }}
-                                      className="p-2 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-colors"
+                                      className="p-2 hover:bg-surface/60 rounded-xl text-ink-secondary hover:text-ink transition-colors"
                                       title="Copy Secret Key"
                                     >
-                                       {copied ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
+                                       {copied ? <Check className="w-5 h-5 text-emerald" /> : <Copy className="w-5 h-5" />}
                                     </button>
-                                    <button onClick={() => setRevealedKey(null)} className="p-2 hover:bg-white/5 rounded-xl text-slate-500 hover:text-white transition-colors">
+                                    <button onClick={() => setRevealedKey(null)} className="p-2 hover:bg-surface/60 rounded-xl text-ink-secondary hover:text-ink transition-colors">
                                        <EyeOff className="w-5 h-5" />
                                     </button>
                                  </div>
@@ -684,7 +684,7 @@ export default function AdminDashboardPage() {
                               <button 
                                 onClick={() => updateSecretKeyMutation.mutate(revealedKey)}
                                 disabled={updateSecretKeyMutation.isPending}
-                                className="w-full py-4 bg-indigo-500 hover:bg-indigo-600 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50"
+                                className="w-full py-4 bg-gold-500 hover:bg-gold-500 rounded-2xl font-bold uppercase tracking-widest text-sm shadow-lg shadow-gold-sm transition-all disabled:opacity-50"
                               >
                                  {updateSecretKeyMutation.isPending ? 'Syncing...' : 'Update Global Secret'}
                               </button>
@@ -692,18 +692,18 @@ export default function AdminDashboardPage() {
                         ) : (
                            <div className="flex items-center gap-6">
                               <div className="flex-1 flex gap-2">
-                                 {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="w-2 h-2 bg-slate-700 rounded-full" />)}
+                                 {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="w-2 h-2 bg-surface-overlay rounded-full" />)}
                               </div>
                               <button 
                                 onClick={() => setShowKeyModal(true)}
-                                className="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all"
+                                className="px-6 py-3 bg-surface/60 hover:bg-surface-raised/70 rounded-2xl text-[10px] font-bold uppercase tracking-widest border border-border transition-all"
                               >
                                  Reveal Secure Key
                               </button>
                            </div>
                         )}
                         
-                        <p className="mt-6 text-[10px] text-slate-500 leading-relaxed font-medium">
+                        <p className="mt-6 text-[10px] text-ink-secondary leading-relaxed font-medium">
                            This key is required by the system to authorize any administrative role promotions. Keep it safe and never share it via insecure channels.
                         </p>
                      </div>
@@ -720,33 +720,33 @@ export default function AdminDashboardPage() {
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+                className="fixed inset-0 bg-canvas-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
               >
                  <motion.div 
                    initial={{ scale: 0.9, opacity: 0 }}
                    animate={{ scale: 1, opacity: 1 }}
-                   className="bg-slate-900 border border-white/10 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl"
+                   className="bg-surface border border-border rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl"
                  >
                     <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center mb-6">
                        <ShieldAlert className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-black text-white mb-2">Identify Required</h3>
-                    <p className="text-slate-500 text-sm mb-8 font-medium leading-relaxed">Please enter your account password to view the platform secret key.</p>
+                    <h3 className="text-2xl font-bold text-ink mb-2">Identify Required</h3>
+                    <p className="text-ink-secondary text-sm mb-8 font-medium leading-relaxed">Please enter your account password to view the platform secret key.</p>
                     
                     <input 
                       type="password" 
                       placeholder="Admin Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white mb-6 focus:outline-none focus:border-red-500/50"
+                      className="input-galerie w-full"
                     />
                     
                     <div className="flex gap-4">
-                       <button onClick={() => setShowKeyModal(false)} className="flex-1 py-4 font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest text-[10px]">Cancel</button>
+                       <button onClick={() => setShowKeyModal(false)} className="flex-1 py-4 font-bold text-ink-secondary hover:text-ink transition-colors uppercase tracking-widest text-[10px]">Cancel</button>
                        <button 
                          onClick={handleVerifyPassword}
                          disabled={isVerifying}
-                         className="flex-1 py-4 bg-red-500 hover:bg-red-600 rounded-2xl font-black text-white uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 transition-all flex items-center justify-center"
+                         className="flex-1 py-4 bg-red-500 hover:bg-red-600 rounded-2xl font-bold text-ink uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 transition-all flex items-center justify-center"
                        >
                           {isVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm'}
                        </button>
@@ -761,26 +761,26 @@ export default function AdminDashboardPage() {
                  initial={{ opacity: 0 }} 
                  animate={{ opacity: 1 }} 
                  exit={{ opacity: 0 }}
-                 className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[110] flex items-center justify-center p-6 md:p-12"
+                 className="fixed inset-0 bg-canvas-950/90 backdrop-blur-md z-[110] flex items-center justify-center p-6 md:p-12"
                >
                   <motion.div 
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    className="bg-slate-900 border border-white/10 rounded-[3rem] w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+                    className="bg-surface border border-border rounded-[3rem] w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)]"
                   >
-                     <div className="flex items-center justify-between p-8 border-b border-white/5">
+                     <div className="flex items-center justify-between p-8 border-b border-border-subtle">
                         <div className="flex items-center gap-4 text-left font-sans">
-                           <div className="p-3 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/20">
-                              <Package className="w-6 h-6 text-white" />
+                           <div className="p-3 bg-gold-500 rounded-2xl shadow-lg shadow-gold-sm">
+                              <Package className="w-6 h-6 text-ink" />
                            </div>
                            <div className="text-left">
-                              <h3 className="text-2xl font-black text-white leading-none mb-1 text-left">Artwork Inspection</h3>
-                              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-left">Moderation ID: {viewingArtworkId}</p>
+                              <h3 className="text-2xl font-bold text-ink leading-none mb-1 text-left">Artwork Inspection</h3>
+                              <p className="text-ink-secondary text-[10px] font-bold uppercase tracking-widest text-left">Moderation ID: {viewingArtworkId}</p>
                            </div>
                         </div>
                         <button 
                           onClick={() => setViewingArtworkId(null)}
-                          className="p-4 hover:bg-white/5 rounded-full text-slate-500 hover:text-white transition-all"
+                          className="p-4 hover:bg-surface/60 rounded-full text-ink-secondary hover:text-ink transition-all"
                         >
                            <X className="w-6 h-6" />
                         </button>
@@ -789,25 +789,25 @@ export default function AdminDashboardPage() {
                      <div className="flex-1 overflow-y-auto p-8 md:p-12 text-left font-sans">
                         {artworkDetailLoading ? (
                            <div className="h-96 flex flex-col items-center justify-center gap-4 text-left">
-                              <Loader2 className="w-12 h-12 animate-spin text-indigo-500" />
-                              <p className="text-slate-500 font-black uppercase tracking-widest text-xs text-left">Retrieving high-res assets...</p>
+                              <Loader2 className="w-12 h-12 animate-spin text-gold-500" />
+                              <p className="text-ink-secondary font-bold uppercase tracking-widest text-xs text-left">Retrieving high-res assets...</p>
                            </div>
                         ) : artworkDetail ? (
                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 text-left">
                               <div className="space-y-6 text-left">
-                                 <div className="aspect-square bg-white/3 rounded-[2.5rem] overflow-hidden border border-white/10 group relative text-left shadow-2xl">
+                                 <div className="aspect-square bg-surface/40 rounded-[2.5rem] overflow-hidden border border-border group relative text-left shadow-2xl">
                                     <img 
                                       src={artworkDetail.images?.[0]?.signed_url || '/placeholder-artwork.jpg'} 
                                       alt={artworkDetail.title}
                                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
-                                    <div className="absolute top-6 left-6 px-4 py-2 bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-full text-left">
-                                       <p className="text-[10px] font-black uppercase tracking-widest text-white text-left font-bold">{artworkDetail.images?.length || 0} Images</p>
+                                    <div className="absolute top-6 left-6 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest bg-surface-overlay border border-border text-ink-muted backdrop-blur-md">
+                                       <p className="text-[10px] font-bold uppercase tracking-widest text-ink text-left font-bold">{artworkDetail.images?.length || 0} Images</p>
                                     </div>
                                  </div>
                                  <div className="grid grid-cols-4 gap-4 text-left">
                                     {artworkDetail.images?.slice(1, 5).map((img: any, i: number) => (
-                                       <div key={i} className="aspect-square bg-white/3 rounded-2xl overflow-hidden border border-white/5 opacity-60 hover:opacity-100 transition-opacity text-left cursor-zoom-in">
+                                       <div key={i} className="aspect-square bg-surface/40 rounded-2xl overflow-hidden border border-border-subtle opacity-60 hover:opacity-100 transition-opacity text-left cursor-zoom-in">
                                           <img src={img.signed_url} alt="" className="w-full h-full object-cover" />
                                        </div>
                                     ))}
@@ -816,53 +816,53 @@ export default function AdminDashboardPage() {
 
                               <div className="flex flex-col h-full text-left">
                                  <div className="mb-10 text-left">
-                                    <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-3 text-left">Core Details</h4>
-                                    <h2 className="text-4xl font-black text-white tracking-tight mb-4 leading-tight text-left">{artworkDetail.title}</h2>
-                                    <p className="text-slate-400 text-lg leading-relaxed font-medium text-left">
+                                    <h4 className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.2em] mb-3 text-left">Core Details</h4>
+                                    <h2 className="font-display text-5xl font-bold text-ink tracking-tight mb-4 leading-tight text-left">{artworkDetail.title}</h2>
+                                    <p className="text-ink-secondary text-lg leading-relaxed font-medium text-left">
                                        {artworkDetail.description || "No description provided."}
                                     </p>
                                  </div>
 
                                  <div className="grid grid-cols-2 gap-6 mb-12 text-left">
-                                    <div className="p-6 bg-white/3 rounded-3xl border border-white/5 hover:bg-white/5 transition-colors text-left">
-                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Pricing</p>
-                                       <p className="text-2xl font-black text-white tracking-tighter text-left">${artworkDetail.price?.toLocaleString() || '0'}</p>
+                                    <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
+                                       <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Pricing</p>
+                                       <p className="text-2xl font-mono font-semibold text-ink tracking-tighter text-left">${artworkDetail.price?.toLocaleString() || '0'}</p>
                                     </div>
-                                    <div className="p-6 bg-white/3 rounded-3xl border border-white/5 hover:bg-white/5 transition-colors text-left">
-                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Status</p>
-                                       <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-left ${
-                                          artworkDetail.status === 'published' ? 'bg-emerald-500/10 text-emerald-400' : 
+                                    <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
+                                       <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Status</p>
+                                       <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-left ${
+                                          artworkDetail.status === 'published' ? 'bg-emerald-muted text-emerald' : 
                                           artworkDetail.status === 'pending' ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-500'
                                        }`}>
                                           {artworkDetail.status}
                                        </span>
                                     </div>
-                                    <div className="p-6 bg-white/3 rounded-3xl border border-white/5 hover:bg-white/5 transition-colors text-left">
-                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Category & Style</p>
-                                       <p className="text-sm font-bold text-slate-300 text-left">{artworkDetail.medium} • {artworkDetail.style}</p>
+                                    <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
+                                       <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Category & Style</p>
+                                       <p className="text-sm font-bold text-ink-muted text-left">{artworkDetail.medium} • {artworkDetail.style}</p>
                                     </div>
-                                    <div className="p-6 bg-white/3 rounded-3xl border border-white/5 hover:bg-white/5 transition-colors text-left">
-                                       <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Dimensions</p>
-                                       <p className="text-sm font-bold text-slate-300 text-left">{artworkDetail.dimensions || "N/A"}</p>
+                                    <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
+                                       <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Dimensions</p>
+                                       <p className="text-sm font-bold text-ink-muted text-left">{artworkDetail.dimensions || "N/A"}</p>
                                     </div>
                                  </div>
 
-                                 <div className="mt-auto pt-8 border-t border-white/5 text-left">
+                                 <div className="mt-auto pt-8 border-t border-border-subtle text-left">
                                     {artworkDetail.buyer && (
-                                       <div className="mb-8 p-6 bg-indigo-500/10 border border-indigo-500/20 rounded-3xl">
+                                       <div className="mb-8 p-6 bg-gold-muted border border-gold/20 rounded-3xl">
                                           <div className="flex items-center gap-3 mb-4">
-                                             <div className="p-2 bg-indigo-500 rounded-lg">
-                                                <ShoppingCart className="w-4 h-4 text-white" />
+                                             <div className="p-2 bg-gold-500 rounded-lg">
+                                                <ShoppingCart className="w-4 h-4 text-ink" />
                                              </div>
-                                             <h4 className="text-xs font-black text-white uppercase tracking-widest">Sale Record</h4>
+                                             <h4 className="text-xs font-bold text-ink uppercase tracking-widest">Sale Record</h4>
                                           </div>
                                           <div className="space-y-2">
-                                             <p className="text-sm font-bold text-white">{artworkDetail.buyer.display_name}</p>
-                                             <p className="text-xs text-indigo-400 font-medium">{artworkDetail.buyer.email}</p>
+                                             <p className="text-sm font-bold text-ink">{artworkDetail.buyer.display_name}</p>
+                                             <p className="text-xs text-gold-400 font-medium">{artworkDetail.buyer.email}</p>
                                           </div>
                                        </div>
                                     )}
-                                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6 text-center">Administrative Control</h4>
+                                    <h4 className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-6 text-center">Administrative Control</h4>
                                     <div className="flex gap-4">
                                        <button 
                                          onClick={() => {
@@ -871,19 +871,19 @@ export default function AdminDashboardPage() {
                                              }
                                          }}
                                          disabled={moderateArtwork.isPending}
-                                         className="flex-1 py-5 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/50 rounded-2xl font-black text-slate-400 hover:text-red-400 uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                         className="flex-1 py-5 bg-surface/60 hover:bg-red-500/10 border border-border hover:border-red-500/50 rounded-2xl font-bold text-ink-secondary hover:text-red-400 uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                        >
                                           <XCircle className="w-5 h-5" />
                                           {moderateArtwork.isPending ? "Syncing..." : "Reject Submission"}
                                        </button>
                                     </div>
-                                    <p className="mt-6 text-[10px] text-slate-500 text-center font-medium opacity-60">Rejection will instantly unpublish the artwork and notify the artist.</p>
+                                    <p className="mt-6 text-[10px] text-ink-secondary text-center font-medium opacity-60">Rejection will instantly unpublish the artwork and notify the artist.</p>
                                  </div>
                               </div>
                            </div>
                         ) : (
                            <div className="h-96 flex items-center justify-center text-left">
-                              <p className="text-slate-500 font-black uppercase tracking-widest text-xs text-left">Error loading artwork data.</p>
+                              <p className="text-ink-secondary font-bold uppercase tracking-widest text-xs text-left">Error loading artwork data.</p>
                            </div>
                         )}
                      </div>
@@ -895,29 +895,29 @@ export default function AdminDashboardPage() {
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+                className="fixed inset-0 bg-canvas-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
               >
                  <motion.div 
                    initial={{ scale: 0.9, opacity: 0 }}
                    animate={{ scale: 1, opacity: 1 }}
-                   className="bg-slate-900 border border-white/10 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl"
+                   className="bg-surface border border-border rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl"
                  >
                     <div className="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-6">
                        <Lock className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-black text-white mb-2">Security Verification</h3>
-                    <p className="text-slate-500 text-sm mb-8 font-medium leading-relaxed">Switching a user to <b>Admin</b> is a critical operation. Please enter the Admin Secret Key to authorize this change.</p>
+                    <h3 className="text-2xl font-bold text-ink mb-2">Security Verification</h3>
+                    <p className="text-ink-secondary text-sm mb-8 font-medium leading-relaxed">Switching a user to <b>Admin</b> is a critical operation. Please enter the Admin Secret Key to authorize this change.</p>
                     
                     <input 
                       type="password" 
                       placeholder="Enter Admin Secret Key"
                       value={pormotionSecretKey}
                       onChange={(e) => setPromotionSecretKey(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white mb-6 focus:outline-none focus:border-amber-500/50"
+                      className="input-galerie w-full"
                     />
                     
                     <div className="flex gap-4">
-                       <button onClick={() => setShowPromotionModal(null)} className="flex-1 py-4 font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest text-[10px]">Back</button>
+                       <button onClick={() => setShowPromotionModal(null)} className="flex-1 py-4 font-bold text-ink-secondary hover:text-ink transition-colors uppercase tracking-widest text-[10px]">Back</button>
                        <button 
                          onClick={() => updateRole.mutate({ 
                            userId: showPromotionModal.userId, 
@@ -925,7 +925,7 @@ export default function AdminDashboardPage() {
                            secretKey: pormotionSecretKey
                          })}
                          disabled={updateRole.isPending}
-                         className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-white uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 transition-all"
+                         className="flex-1 py-4 bg-emerald hover:bg-emerald-500 rounded-2xl font-bold text-ink uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 transition-all"
                        >
                           {updateRole.isPending ? 'Authorizing...' : 'Authorize Change'}
                        </button>

@@ -59,7 +59,7 @@ export default function PurchasesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8 pt-24">
+    <div className="min-h-screen bg-canvas-950 text-ink p-8 pt-24">
       {/* Hidden Invoice for Printing */}
       <div id="printable-invoice" className="hidden print:block">
         {selectedOrder && <OrderInvoice order={selectedOrder} userData={userData} />}
@@ -68,12 +68,12 @@ export default function PurchasesPage() {
       <div className="max-w-5xl mx-auto print:hidden">
         <header className="mb-12">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-muted flex items-center justify-center text-emerald">
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-white">My Purchases</h1>
-              <p className="text-slate-400">Manage and track your art collection</p>
+              <h1 className="font-display text-4xl font-bold text-ink">My Purchases</h1>
+              <p className="text-ink-secondary">Manage and track your art collection</p>
             </div>
           </div>
         </header>
@@ -81,19 +81,19 @@ export default function PurchasesPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-white/5 rounded-2xl animate-pulse" />
+              <div key={i} className="h-24 rounded-2xl skeleton" />
             ))}
           </div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-20 bg-white/5 rounded-[2.5rem] border border-white/10">
-            <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <div className="text-center py-20 bg-surface/60 rounded-[2.5rem] border border-border">
+            <div className="w-20 h-20 bg-surface rounded-3xl flex items-center justify-center mx-auto mb-6">
               <Package className="w-10 h-10 text-slate-700" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No purchases yet</h3>
-            <p className="text-slate-500 mb-8">Start your collection by exploring the marketplace</p>
+            <h3 className="font-display text-xl font-semibold text-ink mb-2">No purchases yet</h3>
+            <p className="text-ink-secondary mb-8">Start your collection by exploring the marketplace</p>
             <button 
               onClick={() => router.push('/artworks')}
-              className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
+              className="px-8 py-4 bg-emerald-500 hover:bg-emerald text-ink font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20"
             >
               Browse Marketplace
             </button>
@@ -109,10 +109,10 @@ export default function PurchasesPage() {
                   key={order.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-6 group hover:border-emerald-500/30 hover:bg-white/8 transition-all cursor-pointer"
+                  className="bg-surface border border-border-subtle rounded-2xl shadow-card p-4 flex items-center gap-6 group cursor-pointer hover:border-border-strong hover:shadow-card-hover transition-all duration-300"
                   onClick={() => setSelectedOrder(order)}
                 >
-                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-900 shrink-0">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-surface shrink-0">
                     {primaryImage?.signed_url ? (
                       <img 
                         src={primaryImage.signed_url} 
@@ -127,25 +127,25 @@ export default function PurchasesPage() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white truncate text-lg">{artwork.title}</h3>
+                    <h3 className="font-bold text-ink truncate text-lg">{artwork.title}</h3>
                     <div className="flex items-center gap-4 mt-1">
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                      <div className="flex items-center gap-1.5 text-xs text-ink-secondary">
                         <Calendar className="w-3.5 h-3.5" />
                         {new Date(order.created_at).toLocaleDateString()}
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold uppercase tracking-wider">
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                      <div className="flex items-center gap-1.5 text-xs text-emerald font-bold uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 bg-emerald rounded-full" />
                         {order.status}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-black text-white">${order.total_amount?.toLocaleString()}</p>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Order #{order.id.slice(0, 8)}</p>
+                    <p className="text-xl font-mono font-semibold text-ink">${order.total_amount?.toLocaleString()}</p>
+                    <p className="text-[10px] text-ink-secondary uppercase tracking-widest font-bold mt-1">Order #{order.id.slice(0, 8)}</p>
                   </div>
 
-                  <div className="p-2 rounded-xl bg-white/5 group-hover:bg-emerald-500 group-hover:text-white text-slate-500 transition-all">
+                  <div className="p-2 rounded-xl bg-surface/60 group-hover:bg-emerald group-hover:text-ink text-ink-secondary transition-all">
                     <ChevronRight className="w-5 h-5" />
                   </div>
                 </motion.div>
@@ -162,23 +162,23 @@ export default function PurchasesPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-canvas-950/80 backdrop-blur-md"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-slate-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl"
+              className="bg-surface border border-border w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/2">
+              <div className="p-6 border-b border-border-subtle flex items-center justify-between bg-surface/30">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Order Details</h2>
-                  <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Transaction #{selectedOrder.id.slice(0, 12)}</p>
+                  <h2 className="font-display text-xl font-semibold text-ink">Order Details</h2>
+                  <p className="text-xs text-ink-secondary mt-1 uppercase tracking-widest font-bold">Transaction #{selectedOrder.id.slice(0, 12)}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedOrder(null)}
-                  className="p-2 hover:bg-white/10 rounded-xl text-slate-400 transition-all"
+                  className="p-2 hover:bg-surface-raised/70 rounded-xl text-ink-secondary transition-all"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -187,7 +187,7 @@ export default function PurchasesPage() {
               <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto">
                 {/* Artwork & Stats */}
                 <div className="flex gap-6">
-                  <div className="w-32 h-32 rounded-2xl overflow-hidden bg-slate-800 shrink-0 border border-white/10">
+                  <div className="w-32 h-32 rounded-2xl overflow-hidden bg-surface-raised shrink-0 border border-border">
                     {selectedOrder.items?.[0]?.artwork?.images?.find((img: any) => img.is_primary)?.signed_url ? (
                       <img src={selectedOrder.items?.[0]?.artwork?.images?.find((img: any) => img.is_primary)?.signed_url} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -197,18 +197,18 @@ export default function PurchasesPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-black text-white mb-2">{selectedOrder.items?.[0]?.artwork?.title}</h3>
+                    <h3 className="text-2xl font-bold text-ink mb-2">{selectedOrder.items?.[0]?.artwork?.title}</h3>
                     <div className="grid grid-cols-2 gap-4">
-                       <div className="flex items-center gap-2 text-xs text-slate-400">
-                         <Palette className="w-3.5 h-3.5 text-indigo-400" />
+                       <div className="flex items-center gap-2 text-xs text-ink-secondary">
+                         <Palette className="w-3.5 h-3.5 text-gold-400" />
                          {selectedOrder.items?.[0]?.artwork?.medium}
                        </div>
-                       <div className="flex items-center gap-2 text-xs text-slate-400">
-                         <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                       <div className="flex items-center gap-2 text-xs text-ink-secondary">
+                         <Calendar className="w-3.5 h-3.5 text-gold-400" />
                          {new Date(selectedOrder.created_at).toLocaleDateString()}
                        </div>
                     </div>
-                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest">
+                    <div className="badge-emerald mt-4">
                        <ShieldCheck className="w-3 h-3" />
                        Verified Purchase
                     </div>
@@ -218,60 +218,60 @@ export default function PurchasesPage() {
                 {/* Details Grid */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Shipping Status</h4>
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
+                    <h4 className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest">Shipping Status</h4>
+                    <div className="bg-surface/60 rounded-2xl p-4 border border-border-subtle flex items-center gap-3">
                        <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
                          <Truck className="w-5 h-5" />
                        </div>
                        <div>
-                         <p className="text-sm font-bold text-white capitalize">{selectedOrder.status}</p>
-                         <p className="text-[10px] text-slate-500">Awaiting dispatch from artist</p>
+                         <p className="text-sm font-bold text-ink capitalize">{selectedOrder.status}</p>
+                         <p className="text-[10px] text-ink-secondary">Awaiting dispatch from artist</p>
                        </div>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Acquired By</h4>
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
-                       <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                    <h4 className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest">Acquired By</h4>
+                    <div className="bg-surface/60 rounded-2xl p-4 border border-border-subtle flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-xl bg-gold-muted flex items-center justify-center text-gold-400">
                          <UserIcon className="w-5 h-5" />
                        </div>
                        <div>
-                         <p className="text-sm font-bold text-white">{userData?.display_name || 'Collector'}</p>
-                         <p className="text-[10px] text-slate-500 truncate w-32">{userData?.email}</p>
+                         <p className="text-sm font-bold text-ink">{userData?.display_name || 'Collector'}</p>
+                         <p className="text-[10px] text-ink-secondary truncate w-32">{userData?.email}</p>
                        </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Summary */}
-                <div className="bg-white/5 rounded-[2rem] p-6 border border-white/5 space-y-3">
-                   <div className="flex justify-between text-sm text-slate-400">
+                <div className="bg-surface/60 rounded-[2rem] p-6 border border-border-subtle space-y-3">
+                   <div className="flex justify-between text-sm text-ink-secondary">
                      <span>Artwork Price</span>
-                     <span className="text-white">${selectedOrder.total_amount?.toLocaleString()}</span>
+                     <span className="text-ink">${selectedOrder.total_amount?.toLocaleString()}</span>
                    </div>
-                   <div className="flex justify-between text-sm text-slate-400">
+                   <div className="flex justify-between text-sm text-ink-secondary">
                      <span>Standard Shipping</span>
-                     <span className="text-emerald-400 font-bold uppercase text-[10px]">Free</span>
+                     <span className="text-emerald font-bold uppercase text-[10px]">Free</span>
                    </div>
-                   <div className="pt-3 border-t border-white/10 flex justify-between items-baseline">
-                     <span className="font-bold text-white">Total Paid</span>
-                     <span className="text-3xl font-black text-emerald-500">${selectedOrder.total_amount?.toLocaleString()}</span>
+                   <div className="pt-3 border-t border-border flex justify-between items-baseline">
+                     <span className="font-bold text-ink">Total Paid</span>
+                     <span className="font-mono text-3xl font-semibold text-emerald">${selectedOrder.total_amount?.toLocaleString()}</span>
                    </div>
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="p-6 bg-white/2 border-t border-white/5 flex gap-3">
+              <div className="p-6 bg-surface/30 border-t border-border-subtle flex gap-3">
                 <button 
                   onClick={handleDownloadInvoice}
-                  className="flex-1 bg-white text-slate-900 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-xl shadow-white/5"
+                  className="flex-1 bg-canvas-50 text-ink py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition-all shadow-xl shadow-black/20"
                 >
                   <Download className="w-4 h-4" />
                   Print / View Bill
                 </button>
                 <button 
                   onClick={() => router.push(`/artworks/${selectedOrder.items?.[0]?.artwork?.id}`)}
-                  className="px-6 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all"
+                  className="px-6 bg-surface/60 hover:bg-surface-raised/70 text-ink rounded-2xl transition-all"
                 >
                   View Artwork
                 </button>

@@ -39,38 +39,38 @@ export default function OrderDetailPage() {
   }, [id])
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><Loader2 className="w-8 h-8 text-indigo-500 animate-spin" /></div>
+    return <div className="min-h-screen bg-canvas-950 flex items-center justify-center"><Loader2 className="w-7 h-7 text-gold-500 animate-spin" /></div>
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-center">
-        <h1 className="text-2xl font-bold text-white mb-4">Order Not Found</h1>
-        <button onClick={() => router.push('/orders')} className="text-indigo-400 hover:underline">Back to Orders</button>
+      <div className="min-h-screen bg-canvas-950 flex flex-col items-center justify-center text-center">
+        <h1 className="font-display text-2xl font-semibold text-ink mb-4">Order Not Found</h1>
+        <button onClick={() => router.push('/orders')} className="text-gold-400 hover:underline">Back to Orders</button>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 pt-24 px-6 pb-20">
+    <div className="min-h-screen bg-canvas-950 pt-24 px-6 pb-20">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <button 
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-semibold"
+            className="flex items-center gap-2 text-ink-secondary hover:text-ink transition-colors text-sm font-semibold"
           >
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           
           <button 
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all text-sm font-bold"
+            className="btn-gold"
           >
             <Printer className="w-4 h-4" /> Print Receipt
           </button>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5">
+        <div className="overflow-hidden rounded-3xl border border-border bg-surface/60">
           {/* Hide invoice visually on mobile or use overflow, but we scale it nicely or show raw data. 
               The invoice looks best on large screens or print. */}
           <div className="p-4 md:p-12 overflow-x-auto print-container flex justify-center">

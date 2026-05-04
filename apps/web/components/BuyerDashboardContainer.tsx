@@ -67,29 +67,29 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-canvas-950 text-ink">
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Welcome Header */}
         <div className="mb-12">
-          <h2 className="text-4xl font-black text-white mb-3">
-            Welcome back, <span className="text-indigo-400">Collector</span>
+          <h2 className="font-display text-5xl font-bold text-ink mb-3">
+            Welcome back, <span className="text-gold-400">Collector</span>
           </h2>
-          <p className="text-slate-400">Discover new pieces and manage your acquisitions</p>
+          <p className="text-ink-secondary">Discover new pieces and manage your acquisitions</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {stats.map((stat) => (
-            <div key={stat.label} className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/8 transition-colors group">
+            <div key={stat.label} className="bg-surface border border-border-subtle rounded-3xl shadow-card p-6 group hover:border-border-strong hover:shadow-card-hover transition-all duration-300">
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-2xl bg-${stat.color}-500/10 text-${stat.color}-400 group-hover:scale-110 transition-transform`}>
                   <stat.icon className="w-6 h-6" />
                 </div>
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                <TrendingUp className="w-4 h-4 text-emerald" />
               </div>
-              <p className="text-3xl font-black text-white mb-1">{stat.value}</p>
-              <p className="text-sm font-medium text-slate-500 uppercase tracking-widest">{stat.label}</p>
+              <p className="font-display text-4xl font-bold text-ink mb-1">{stat.value}</p>
+              <p className="text-sm font-medium text-ink-secondary uppercase tracking-widest">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -97,21 +97,21 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
         {/* Search Bar */}
         <div className="mb-12">
           <form onSubmit={handleSearch} className="relative group max-w-2xl">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-secondary group-focus-within:text-gold-400 transition-colors" />
             <input
               type="text"
               placeholder="Search by artist, title, or style..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-[2rem] py-5 pl-16 pr-6 text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-lg"
+              className="input-galerie w-full"
             />
             {searchInput && (
                <button 
                 type="button" 
                 onClick={() => { setSearchInput(''); setSearch('') }}
-                className="absolute right-6 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="absolute right-6 top-1/2 -translate-y-1/2 p-2 hover:bg-surface-raised/70 rounded-full transition-colors"
                >
-                 <X className="w-4 h-4 text-slate-500" />
+                 <X className="w-4 h-4 text-ink-secondary" />
                </button>
             )}
           </form>
@@ -121,10 +121,10 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
         <section>
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-              <h3 className="text-xl font-bold text-white">New in Gallery</h3>
+              <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+              <h3 className="font-display text-xl font-semibold text-ink">New in Gallery</h3>
             </div>
-            <button className="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-2 group">
+            <button className="text-sm font-bold text-gold-400 hover:text-gold-300 transition-colors flex items-center gap-2 group">
               View All <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -132,7 +132,7 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
           {artworksLoading ? (
             <div className="grid grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="aspect-square bg-white/5 rounded-3xl animate-pulse" />
+                <div key={i} className="aspect-square rounded-3xl skeleton" />
               ))}
             </div>
           ) : (
@@ -144,10 +144,10 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                     key={artwork.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="group bg-white/5 border border-white/10 rounded-[2.5rem] p-4 hover:border-indigo-500/30 transition-all cursor-pointer overflow-hidden relative"
+                    className="group bg-surface/60 border border-border rounded-[2.5rem] p-4 cursor-pointer overflow-hidden relative hover:border-border-strong hover:shadow-card-hover transition-all duration-300"
                     onClick={() => router.push(`/artworks/${artwork.id}`)}
                   >
-                    <div className="aspect-square bg-slate-900 rounded-[2rem] overflow-hidden mb-4 relative">
+                    <div className="aspect-square bg-surface rounded-[2rem] overflow-hidden mb-4 relative">
                       {primaryImage?.signed_url ? (
                         <img 
                           src={primaryImage.signed_url} 
@@ -156,7 +156,7 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon className="w-10 h-10 text-slate-800" />
+                          <ImageIcon className="w-10 h-10 text-ink" />
                         </div>
                       )}
                       
@@ -169,21 +169,21 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
                       </div>
 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                        <span className="text-xs font-bold text-white bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full">
+                        <span className="text-xs font-bold text-ink bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full">
                           View Details
                         </span>
                       </div>
                     </div>
                     <div className="px-2">
-                       <h4 className="font-bold text-white truncate mb-1">{artwork.title}</h4>
+                       <h4 className="font-bold text-ink truncate mb-1">{artwork.title}</h4>
                        <div className="flex items-center justify-between">
-                         <p className="text-xs text-slate-500 uppercase tracking-widest font-bold font-mono py-1">{artwork.medium || 'Untitled'}</p>
-                         <p className="text-sm font-black text-emerald-400">£{artwork.price?.toLocaleString()}</p>
+                         <p className="text-xs text-ink-secondary uppercase tracking-widest font-bold font-mono py-1">{artwork.medium || 'Untitled'}</p>
+                         <p className="text-sm font-mono font-semibold text-emerald">£{artwork.price?.toLocaleString()}</p>
                        </div>
                        {artwork.tags && artwork.tags.length > 0 && (
                          <div className="flex flex-wrap gap-1 mt-1">
                            {artwork.tags.slice(0, 3).map(tag => (
-                             <span key={tag.id} className="text-[10px] px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded font-semibold">#{tag.name}</span>
+                             <span key={tag.id} className="text-[10px] px-1.5 py-0.5 bg-gold-muted text-gold-400 border border-gold/20 rounded font-semibold">#{tag.name}</span>
                            ))}
                          </div>
                        )}

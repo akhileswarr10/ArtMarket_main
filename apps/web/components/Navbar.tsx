@@ -87,15 +87,15 @@ export default function Navbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-slate-950/80 backdrop-blur-xl border-b border-white/10 py-3' : 'bg-transparent py-5'
+      scrolled ? 'bg-canvas-950/80 backdrop-blur-xl border-b border-border py-3' : 'bg-transparent py-5'
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <Palette className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-600 to-copper flex items-center justify-center shadow-lg shadow-gold-sm group-hover:scale-105 transition-transform">
+            <Palette className="w-5 h-5 text-ink" />
           </div>
-          <span className="font-black text-xl tracking-tight text-white">ArtMarket</span>
+          <span className="font-bold text-xl tracking-tight text-ink">ArtMarket</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -105,7 +105,7 @@ export default function Navbar() {
               key={link.name} 
               href={link.href}
               className={`text-sm font-semibold transition-colors flex items-center gap-2 ${
-                pathname === link.href ? 'text-indigo-400' : 'text-slate-400 hover:text-white'
+                pathname === link.href ? 'text-gold-400' : 'text-ink-secondary hover:text-ink'
               }`}
             >
               <link.icon className="w-4 h-4" />
@@ -116,16 +116,16 @@ export default function Navbar() {
 
         {/* User Menu */}
         <div className="flex items-center gap-4">
-          {session && <CartIcon />}
+          {session && role !== 'artist' && <CartIcon />}
           {session && <NotificationBell userId={session.user.id} />}
           
           {session ? (
             <div className="relative">
               <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-3 p-1 pr-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all"
+                className="flex items-center gap-3 p-1 pr-3 rounded-full bg-surface/60 border border-border hover:bg-surface-raised/70 transition-all"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-bold text-white">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-400 to-copper flex items-center justify-center text-xs font-bold text-ink">
                   {session.user.email?.[0].toUpperCase()}
                 </div>
                 <span className="text-sm font-medium text-slate-200 hidden sm:inline">{session.user.email.split('@')[0]}</span>
@@ -139,12 +139,12 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-56 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 z-20 backdrop-blur-xl"
+                      className="absolute right-0 mt-3 w-56 bg-surface border border-border rounded-2xl shadow-2xl p-2 z-20 backdrop-blur-xl"
                     >
                       <Link 
                         href="/dashboard"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-ink-muted hover:bg-surface/60 hover:text-ink transition-all"
                       >
                         <User className="w-4 h-4" />
                         Dashboard
@@ -152,15 +152,15 @@ export default function Navbar() {
                       <Link 
                         href="/settings"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-ink-muted hover:bg-surface/60 hover:text-ink transition-all"
                       >
                         <SettingsIcon className="w-4 h-4" />
                         Settings
                       </Link>
-                      <div className="h-px bg-white/5 my-2" />
+                      <div className="h-px bg-surface/60 my-2" />
                       <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 transition-all font-semibold"
+                        className="btn-gold w-full"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -173,7 +173,7 @@ export default function Navbar() {
           ) : (
             <Link 
               href="/login"
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20 text-sm"
+              className="btn-gold"
             >
               Sign In
             </Link>
@@ -181,7 +181,7 @@ export default function Navbar() {
 
           {/* Mobile Toggle */}
           <button 
-            className="md:hidden p-2 text-white"
+            className="md:hidden p-2 text-ink"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X /> : <Menu />}
@@ -196,7 +196,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-slate-900 border-b border-white/10 overflow-hidden"
+            className="md:hidden bg-surface border-b border-border overflow-hidden"
           >
             <div className="p-6 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -204,7 +204,7 @@ export default function Navbar() {
                   key={link.name} 
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 text-lg font-bold text-slate-300 hover:text-white"
+                  className="flex items-center gap-3 text-lg font-bold text-ink-muted hover:text-ink"
                 >
                   <link.icon className="w-5 h-5" />
                   {link.name}

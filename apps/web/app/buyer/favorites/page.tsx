@@ -41,31 +41,31 @@ export default function FavoritesPage() {
   const favorites: Artwork[] = favoritesData?.favorites || []
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-canvas-950 text-ink">
       <main className="container mx-auto px-6 py-12">
         <div className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-muted border border-rose/20 text-rose text-xs font-semibold uppercase tracking-widest mb-4">
               <Sparkles className="w-3 h-3" />
               Wishlist
             </div>
-            <h1 className="text-4xl font-black text-white leading-tight">Masterpieces <br /><span className="text-rose-500 uppercase text-6xl tracking-tighter">You Love</span></h1>
+            <h1 className="font-display text-5xl font-bold text-ink leading-tight">Masterpieces <br /><span className="text-rose uppercase text-6xl tracking-tighter">You Love</span></h1>
         </div>
 
         {isLoading ? (
           <div className="py-24 text-center">
-             <div className="w-12 h-12 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin mx-auto mb-4" />
-             <p className="text-slate-500 text-sm">Loading your collection...</p>
+             <div className="w-12 h-12 border-2 border-rose/30 border-t-rose-500 rounded-full animate-spin mx-auto mb-4" />
+             <p className="text-ink-secondary text-sm">Loading your collection...</p>
           </div>
         ) : favorites.length === 0 ? (
-          <div className="py-24 flex flex-col items-center justify-center text-center bg-white/3 border border-dashed border-white/10 rounded-[3rem]">
-            <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-slate-700 mb-6">
+          <div className="py-24 flex flex-col items-center justify-center text-center bg-surface/40 border border-dashed border-border rounded-[3rem]">
+            <div className="w-20 h-20 bg-surface/60 rounded-3xl flex items-center justify-center text-slate-700 mb-6">
               <Heart className="w-10 h-10" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No favorites yet</h3>
-            <p className="text-slate-500 max-w-sm mb-8 text-sm">Find pieces that speak to you and save them here for later curation.</p>
+            <h3 className="font-display text-xl font-semibold text-ink mb-2">No favorites yet</h3>
+            <p className="text-ink-secondary max-w-sm mb-8 text-sm">Find pieces that speak to you and save them here for later curation.</p>
             <button
               onClick={() => router.push('/artworks')}
-              className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-500 shadow-xl shadow-indigo-500/10 transition-all hover:scale-105"
+              className="px-8 py-4 bg-gold-500 text-ink font-bold rounded-2xl hover:bg-gold-500 shadow-xl shadow-gold-500/10 transition-all hover:scale-105"
             >
               Explore Gallery
             </button>
@@ -82,10 +82,10 @@ export default function FavoritesPage() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="group bg-white/5 border border-white/10 rounded-[2rem] p-4 hover:border-rose-500/30 transition-all cursor-pointer relative"
+                    className="group bg-surface border border-border-subtle rounded-3xl shadow-card p-4 cursor-pointer relative hover:border-border-strong hover:shadow-card-hover transition-all duration-300"
                     onClick={() => router.push(`/artworks/${artwork.id}`)}
                   >
-                    <div className="aspect-square bg-slate-900 rounded-2xl overflow-hidden relative">
+                    <div className="aspect-square bg-surface rounded-2xl overflow-hidden relative">
                        {primaryImage?.signed_url ? (
                          <img 
                           src={primaryImage.signed_url} 
@@ -94,11 +94,11 @@ export default function FavoritesPage() {
                          />
                        ) : (
                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-10 h-10 text-slate-800" />
+                            <ImageIcon className="w-10 h-10 text-ink" />
                          </div>
                        )}
                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                          <span className="text-[10px] font-bold text-white bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg">
+                          <span className="text-[10px] font-bold text-ink bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg">
                             Click to Expand
                           </span>
                        </div>
@@ -113,11 +113,11 @@ export default function FavoritesPage() {
                     </div>
                     
                     <div className="mt-4 px-1">
-                       <h3 className="font-bold text-white truncate text-sm">{artwork.title || 'Untitled'}</h3>
+                       <h3 className="font-bold text-ink truncate text-sm">{artwork.title || 'Untitled'}</h3>
                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-[11px] text-slate-500">{artwork.medium || 'Medium'}</p>
+                          <p className="text-[11px] text-ink-secondary">{artwork.medium || 'Medium'}</p>
                           {artwork.price && (
-                            <p className="text-xs font-black text-emerald-400">£{artwork.price.toLocaleString()}</p>
+                            <p className="text-xs font-mono font-semibold text-emerald">£{artwork.price.toLocaleString()}</p>
                           )}
                        </div>
                     </div>
