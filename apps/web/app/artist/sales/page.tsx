@@ -18,6 +18,7 @@ interface Order {
   total_amount: number
   status: string
   created_at: string
+  buyer_id: string
   shipping_address: any
   items: {
     artwork: {

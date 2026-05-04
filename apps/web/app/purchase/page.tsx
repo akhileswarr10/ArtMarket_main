@@ -150,15 +150,15 @@ function PurchaseContent() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-ink-secondary">Full Name</label>
-                  <input type="text" className="input-galerie w-full" placeholder="John Doe" /
+                  <input type="text" className="input-galerie w-full" placeholder="John Doe" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-ink-secondary">Phone</label>
-                  <input type="text" className="input-galerie w-full" placeholder="+1 (555) 000-0000" /
+                  <input type="text" className="input-galerie w-full" placeholder="+1 (555) 000-0000" />
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-xs font-bold uppercase text-ink-secondary">Shipping Address</label>
-                  <textarea rows={3} className="input-galerie w-full resize-none" placeholder="123 Art Street, Gallery District, NY 10001" /
+                  <textarea rows={3} className="input-galerie w-full resize-none" placeholder="123 Art Street, Gallery District, NY 10001" />
                 </div>
               </div>
             </section>
