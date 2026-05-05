@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from typing import List, Optional
 from datetime import datetime
+from schemas.artwork import ArtworkResponse
 
 class OrderItemResponse(BaseModel):
     id: UUID
@@ -10,7 +11,7 @@ class OrderItemResponse(BaseModel):
     price_paid: float
     title_snapshot: str
     status: str
-    artwork: Optional[dict] = None
+    artwork: Optional[ArtworkResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 

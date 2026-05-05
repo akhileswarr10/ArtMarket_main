@@ -89,7 +89,9 @@ class OrderRepository:
         return list(orders), total
 
     async def get_all(self, skip: int = 0, limit: int = 50, status: Optional[str] = None) -> Tuple[List[Order], int]:
-        stmt = select(Order).options(selectinload(Order.items)).order_by(Order.created_at.desc())
+        stmt = select(Order).options(
+            selectinload(Order.items).selectinload(OrderItem.artwork).selectinload(Artwork.images)
+        ).order_by(Order.created_at.desc())
         count_stmt = select(func.count()).select_from(Order)
         if status:
             stmt = stmt.where(Order.status == status)
