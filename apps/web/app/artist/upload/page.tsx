@@ -524,11 +524,10 @@ export default function ArtworkUploadPage() {
                                 if (!isApplied) setTags(prev => [...prev, tag])
                               }}
                               disabled={isApplied}
-                              className={`text-[11px] px-2.5 py-1 rounded-lg font-medium transition-all border ${
-                                isApplied
-                                  ? 'bg-emerald-500/15 text-emerald border-emerald-500/20 cursor-default'
-                                  : 'bg-gold-muted text-gold-300 border-gold/20 hover:bg-gold-500/25 cursor-pointer'
-                              }`}
+                              className={`text-[11px] px-2.5 py-1 rounded-lg font-medium transition-all border ${isApplied
+                                ? 'bg-emerald-500/15 text-emerald border-emerald-500/20 cursor-default'
+                                : 'bg-gold-muted text-gold-300 border-gold/20 hover:bg-gold-500/25 cursor-pointer'
+                                }`}
                             >
                               {isApplied ? '✓' : '+'} #{tag}
                             </button>

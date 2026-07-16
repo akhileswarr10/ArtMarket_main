@@ -13,6 +13,7 @@ import {
 import { useCartStore } from '@/lib/stores/cartStore'
 import { addToCart } from '@/lib/api/client'
 import FavoriteButton from '@/components/FavoriteButton'
+import ArtworkRecommendationRail from '@/components/ArtworkRecommendationRail'
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/api$/, '') + '/api'
 
@@ -350,6 +351,22 @@ export default function ArtworkDetailPage() {
                 </div>
               ))}
             </div>
+
+            {/* Recommendation rails — hidden for sold pieces */}
+            {artwork.status !== 'sold' && (
+              <div className="space-y-8">
+                <ArtworkRecommendationRail
+                  title="You might also like"
+                  artworkId={artwork.id}
+                  endpoint="similar"
+                />
+                <ArtworkRecommendationRail
+                  title="At this price"
+                  artworkId={artwork.id}
+                  endpoint="similar-price"
+                />
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-4 pt-4">

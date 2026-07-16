@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from core.database import get_db
 from models import Tag
-from schemas.artwork import TagResponse
+from schemas.artwork import TagResponse, DiscoveryTagResponse
+from repositories.artwork import ArtworkRepository
 
 router = APIRouter(prefix="/tags", tags=["tags"])
 
@@ -16,6 +17,14 @@ def _slugify(name: str) -> str:
     slug = re.sub(r"[\s_]+", "-", slug)
     slug = re.sub(r"-+", "-", slug)
     return slug.strip("-") or "tag"
+
+
+@router.get("/discovery", response_model=list[DiscoveryTagResponse])
+async def get_discovery_tags(db: AsyncSession = Depends(get_db)):
+    """Tag cloud for the browse page merging confirmed artwork tags and
+    AI-suggested tags from published artworks. Public — no auth required."""
+    repo = ArtworkRepository(db)
+    return await repo.get_discovery_tags(limit=30)
 
 
 @router.get("", response_model=list[TagResponse])

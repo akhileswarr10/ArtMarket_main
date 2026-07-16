@@ -23,6 +23,11 @@ class TagResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class DiscoveryTagResponse(BaseModel):
+    name: str
+    count: int
+    source: str  # "confirmed" | "ai"
+
 class BuyerInfo(BaseModel):
     id: UUID
     display_name: str
@@ -90,3 +95,7 @@ class ArtworkListResponse(BaseModel):
     total: int
     skip: int
     limit: int
+
+
+class SimilarArtworksResponse(BaseModel):
+    artworks: List[ArtworkResponse]

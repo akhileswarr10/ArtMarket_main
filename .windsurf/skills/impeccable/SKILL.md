@@ -111,7 +111,7 @@ Match-and-refuse. If you're about to write any of these, rewrite the element wit
 - **Identical card grids.** Same-sized cards with icon + heading + text, repeated endlessly.
 - **Modal as first thought.** Modals are usually laziness. Exhaust inline / progressive alternatives first.
 
-### Copy
+### Cop
 
 - Every word earns its place. No restated headings, no intros that repeat the title.
 - **No em dashes.** Use commas, colons, semicolons, periods, or parentheses. Also not `--`.

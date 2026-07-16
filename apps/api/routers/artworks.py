@@ -12,7 +12,8 @@ from core.config import get_settings
 from repositories.artwork import ArtworkRepository, ArtworkImageRepository
 from schemas.artwork import (
     ArtworkCreate, ArtworkUpdate, ArtworkResponse, ArtworkListResponse,
-    PresignedUrlResponse, ImageConfirmRequest, ArtworkImageResponse, BuyerInfo
+    PresignedUrlResponse, ImageConfirmRequest, ArtworkImageResponse, BuyerInfo,
+    SimilarArtworksResponse
 )
 
 router = APIRouter(prefix="/artworks", tags=["artworks"])
@@ -201,6 +202,43 @@ async def get_artwork(
             
     background_tasks.add_task(_increment_views_background, artwork_id)
     return _build_artwork_response(artwork, buyer_info=buyer_info)
+
+
+@router.get("/{artwork_id}/similar", response_model=SimilarArtworksResponse)
+async def get_similar_artworks(
+    artwork_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Return up to 8 published artworks most similar to the given artwork
+    by shared tags, medium, and style (content-based, no user history).
+    Public — no auth required.
+    """
+    repo = ArtworkRepository(db)
+    artwork = await repo.get_by_id(artwork_id)
+    if not artwork:
+        raise HTTPException(status_code=404, detail="Artwork not found")
+    similar = await repo.get_similar_by_metadata(artwork, limit=8)
+    return SimilarArtworksResponse(
+        artworks=[_build_artwork_response(a) for a in similar]
+    )
+
+
+@router.get("/{artwork_id}/similar-price", response_model=SimilarArtworksResponse)
+async def get_similar_price_artworks(
+    artwork_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """Return up to 8 published artworks within ±20% of the given artwork's
+    price, preferring the same style. Public — no auth required.
+    """
+    repo = ArtworkRepository(db)
+    artwork = await repo.get_by_id(artwork_id)
+    if not artwork:
+        raise HTTPException(status_code=404, detail="Artwork not found")
+    similar = await repo.get_similar_by_price(artwork, limit=8)
+    return SimilarArtworksResponse(
+        artworks=[_build_artwork_response(a) for a in similar]
+    )
 
 
 @router.patch("/{artwork_id}", response_model=ArtworkResponse)

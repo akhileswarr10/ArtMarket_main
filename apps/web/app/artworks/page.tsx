@@ -23,6 +23,12 @@ interface Artwork {
   tags: { id: string; name: string }[]
 }
 
+interface DiscoveryTag {
+  name: string
+  count: number
+  source: 'confirmed' | 'ai'
+}
+
 const MEDIUMS = ['Oil', 'Watercolor', 'Acrylic', 'Digital', 'Sculpture', 'Photography', 'Mixed Media']
 const STYLES = ['Abstract', 'Realism', 'Impressionism', 'Contemporary', 'Minimalism', 'Surrealism']
 
@@ -76,10 +82,17 @@ function ArtworksContent() {
     queryFn: () => fetchApi(`/artworks?${params.toString()}`),
   })
 
+  const { data: discoveryTagsData } = useQuery<DiscoveryTag[]>({
+    queryKey: ['discovery-tags'],
+    queryFn: () => fetchApi('/tags/discovery'),
+  })
+
   const artworks: Artwork[] = data?.artworks || []
   const total: number = data?.total || 0
   const totalPages = Math.ceil(total / limit)
   const currentPage = Math.floor(skip / limit) + 1
+  const discoveryTags = discoveryTagsData || []
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -130,7 +143,42 @@ function ArtworksContent() {
           </p>
         </div>
 
+        {/* Discovery Tags Cloud */}
+        {discoveryTags.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-[11px] font-bold text-ink-secondary uppercase tracking-widest mb-3">
+              Discover by Tag
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {discoveryTags.map(tag => {
+                const isActive = activeTag === tag.name
+                const isAi = tag.source === 'ai'
+                return (
+                  <button
+                    key={tag.name}
+                    onClick={() => handleTagClick(tag.name)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      isActive
+                        ? 'bg-gold-500 text-ink shadow-lg shadow-gold-500/20'
+                        : isAi
+                          ? 'bg-transparent border border-gold-500/30 text-gold-400/80 hover:bg-gold-500/10 border-dashed'
+                          : 'bg-gold-muted text-gold-400 border border-gold/20 hover:bg-gold-500/25'
+                    }`}
+                  >
+                    <span className={isActive ? 'text-ink/60' : 'text-gold-500/60'}>#</span>
+                    {tag.name}
+                    <span className={`text-[10px] ml-1 opacity-60 ${isActive ? 'text-ink/80' : ''}`}>
+                      {tag.count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Search + Filter row */}
+
         <div className="flex flex-col md:flex-row gap-3 mb-4">
           <form onSubmit={handleSearch} className="flex-1 flex gap-2">
             <div className="relative flex-1">

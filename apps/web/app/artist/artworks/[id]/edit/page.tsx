@@ -6,7 +6,7 @@ import { fetchApi } from '@/lib/api/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Loader2, CheckCircle, AlertCircle,
-  ArrowLeft, PoundSterling, Palette, Sparkles, Send, Bot, X, Plus, Tag
+  ArrowLeft, Palette, Sparkles, Send, Bot, X, Plus, Tag
 } from 'lucide-react'
 
 type Status = 'idle' | 'loading' | 'saving' | 'success' | 'error'
@@ -294,28 +294,32 @@ export default function ArtworkEditPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Price (GBP £)</label>
-                    <div className="relative">
-                      <PoundSterling className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary" />
+                    <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Price (GBP)</label>
+                    {/* flex prefix — avoids number-input padding-left override on Windows browsers */}
+                    <div className={`flex items-center bg-surface border border-border-subtle rounded-2xl shadow-card overflow-hidden transition-all focus-within:border-gold-500/40 focus-within:ring-2 focus-within:ring-gold-500/10 ${isSold ? 'opacity-60' : ''}`}>
+                      <span className="pl-4 pr-2 py-3 text-sm font-semibold text-ink-secondary select-none shrink-0">£</span>
                       <input
                         disabled={isSold}
                         type="number"
                         value={price}
                         onChange={e => setPrice(e.target.value)}
-                        className="input-galerie w-full"
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        className="flex-1 pr-4 py-3 bg-transparent outline-none text-ink placeholder:text-ink-secondary text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest">Medium</label>
                     <div className="relative">
-                      <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary" />
+                      <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-secondary pointer-events-none" />
                       <input
                         disabled={isSold}
                         type="text"
                         value={medium}
                         onChange={e => setMedium(e.target.value)}
-                        className="input-galerie w-full"
+                        className="input-galerie w-full pl-10"
                       />
                     </div>
                   </div>

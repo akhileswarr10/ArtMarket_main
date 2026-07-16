@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, update
+from sqlalchemy import select, func, update, case, cast, Float, and_, or_, literal, text
 from sqlalchemy.orm import selectinload
 from typing import Optional, List, Tuple
 
@@ -88,12 +88,32 @@ class ArtworkRepository:
             query = query.where(search_condition)
             count_query = count_query.where(search_condition)
         if tag_name:
-            query = query.join(ArtworkTag, ArtworkTag.artwork_id == Artwork.id)\
-                         .join(Tag, Tag.id == ArtworkTag.tag_id)\
-                         .where(Tag.name.ilike(f"%{tag_name}%"))
-            count_query = count_query.join(ArtworkTag, ArtworkTag.artwork_id == Artwork.id)\
-                                     .join(Tag, Tag.id == ArtworkTag.tag_id)\
-                                     .where(Tag.name.ilike(f"%{tag_name}%"))
+            # Confirmed-tag match: EXISTS on artwork_tags → tags
+            confirmed_tag_exists = (
+                select(ArtworkTag.artwork_id)
+                .join(Tag, Tag.id == ArtworkTag.tag_id)
+                .where(
+                    ArtworkTag.artwork_id == Artwork.id,
+                    Tag.name.ilike(f"%{tag_name}%"),
+                )
+                .exists()
+            )
+            # AI-suggested-tag match: EXISTS on unnest(ai_tags_suggestion)
+            # unnest produces a set of rows; we filter for case-insensitive equality.
+            ai_tag_exists = (
+                select(literal(1))
+                .select_from(
+                    func.unnest(Artwork.ai_tags_suggestion).column_valued("ai_tag")
+                )
+                .where(
+                    func.lower(text("ai_tag")).ilike(f"%{tag_name.lower()}%")
+                )
+                .correlate(Artwork)
+                .exists()
+            )
+            tag_condition = or_(confirmed_tag_exists, ai_tag_exists)
+            query = query.where(tag_condition)
+            count_query = count_query.where(tag_condition)
         
         total = (await self.db.execute(count_query)).scalar()
         result = await self.db.execute(query.order_by(Artwork.created_at.desc()).offset(skip).limit(limit))
@@ -115,6 +135,189 @@ class ArtworkRepository:
                 a.is_favorited = a.id in favorited_ids
 
         return artworks, total
+
+    async def get_similar_by_metadata(self, artwork: Artwork, limit: int = 8) -> List[Artwork]:
+        """
+        Tier-2 content-based similarity for the 'You might also like' section.
+
+        Scoring (Python-side after a cheap candidate fetch):
+          +2  for each shared tag between source and candidate
+          +1  if candidate.medium == source.medium  (when source.medium is set)
+          +1  if candidate.style  == source.style   (when source.style  is set)
+
+        Only candidates with score > 0 are returned, ordered by score desc then
+        created_at desc. Falls back to most-recent published artworks when the
+        source has no metadata signals (no tags, no medium, no style).
+
+        All returned Artwork objects are fetched via _base_query_with_relations()
+        so images / artwork_tags / artist are already eager-loaded for
+        _build_artwork_response() to consume without extra queries.
+        """
+        source_tag_ids = {at.tag_id for at in artwork.artwork_tags}
+        has_signals = bool(source_tag_ids or artwork.medium or artwork.style)
+
+        if not has_signals:
+            # Fallback: most-recent published artworks, excluding self
+            fallback_q = (
+                self._base_query_with_relations()
+                .where(
+                    Artwork.status == "published",
+                    Artwork.deleted_at == None,
+                    Artwork.id != artwork.id,
+                )
+                .order_by(Artwork.created_at.desc())
+                .limit(limit)
+            )
+            result = await self.db.execute(fallback_q)
+            return result.scalars().unique().all()
+
+        # ── Step 1: fetch candidate IDs that share at least one tag ────────────
+        # We union the tag-overlap candidates with all published artworks so that
+        # medium/style-only matches are also considered.
+        base_filters = and_(
+            Artwork.status == "published",
+            Artwork.deleted_at == None,
+            Artwork.id != artwork.id,
+        )
+
+        # Fetch all candidate artworks with full relations (we'll score in Python)
+        candidate_q = (
+            self._base_query_with_relations()
+            .where(base_filters)
+        )
+        result = await self.db.execute(candidate_q)
+        candidates = result.scalars().unique().all()
+
+        # ── Step 2: score each candidate in Python ──────────────────────────────
+        scored: List[tuple] = []  # (score, created_at, artwork_obj)
+        for candidate in candidates:
+            score = 0
+            candidate_tag_ids = {at.tag_id for at in candidate.artwork_tags}
+            # +2 per shared tag
+            score += 2 * len(source_tag_ids & candidate_tag_ids)
+            # +1 for medium match
+            if artwork.medium and candidate.medium == artwork.medium:
+                score += 1
+            # +1 for style match
+            if artwork.style and candidate.style == artwork.style:
+                score += 1
+            if score > 0:
+                scored.append((score, candidate.created_at, candidate))
+
+        # Sort: score desc, created_at desc, slice to limit
+        scored.sort(key=lambda t: (t[0], t[1]), reverse=True)
+        return [t[2] for t in scored[:limit]]
+
+    async def get_similar_by_price(self, artwork: Artwork, limit: int = 8) -> List[Artwork]:
+        """
+        'At this price' section — candidates within ±20% of the source artwork's price.
+
+        Ordering:
+          1. Artworks whose style matches the source artwork's style come first
+             (when source.style is set).
+          2. Within each style bucket, ordered by smallest absolute price difference.
+
+        Returns an empty list when the source artwork has no price set.
+        All returned Artwork objects are eager-loaded via _base_query_with_relations().
+        """
+        if artwork.price is None:
+            return []
+
+        price = float(artwork.price)
+        low  = price * 0.8
+        high = price * 1.2
+
+        # style_order: 0 for matching style, 1 for everything else
+        if artwork.style:
+            style_order = case(
+                (Artwork.style == artwork.style, 0),
+                else_=1,
+            )
+        else:
+            style_order = 1  # no style signal — skip the bucket entirely
+
+        price_diff = func.abs(cast(Artwork.price, Float) - price)
+
+        query = (
+            self._base_query_with_relations()
+            .where(
+                Artwork.status == "published",
+                Artwork.deleted_at == None,
+                Artwork.id != artwork.id,
+                Artwork.price != None,
+                cast(Artwork.price, Float) >= low,
+                cast(Artwork.price, Float) <= high,
+            )
+            .order_by(style_order, price_diff)
+            .limit(limit)
+        )
+
+        result = await self.db.execute(query)
+        return result.scalars().unique().all()
+
+    async def get_discovery_tags(self, limit: int = 30) -> List[dict]:
+        """
+        Returns a merged tag-cloud for the browse page combining:
+          - confirmed tags: Tag rows linked to published artworks via ArtworkTag
+          - AI-suggested tags: strings from Artwork.ai_tags_suggestion (unnested)
+
+        When the same tag text appears in both sources the counts are summed and
+        the source is recorded as 'confirmed'. Sorted by count desc.
+        """
+        published_filter = and_(
+            Artwork.status == "published",
+            Artwork.deleted_at == None,
+        )
+
+        # ── Confirmed tags ────────────────────────────────────────────────────
+        confirmed_q = (
+            select(
+                func.lower(Tag.name).label("name"),
+                func.count(ArtworkTag.artwork_id).label("count"),
+            )
+            .join(ArtworkTag, ArtworkTag.tag_id == Tag.id)
+            .join(Artwork, Artwork.id == ArtworkTag.artwork_id)
+            .where(published_filter)
+            .group_by(func.lower(Tag.name))
+        )
+        confirmed_rows = (await self.db.execute(confirmed_q)).fetchall()
+        # {lowercased_name: count}
+        confirmed_map: dict[str, int] = {row.name: row.count for row in confirmed_rows}
+
+        # ── AI-suggested tags (unnested) ──────────────────────────────────────
+        # column_valued() turns unnest() into a scalar column expression that
+        # SQLAlchemy adds as an implicit LATERAL in the FROM clause when used
+        # inside select() alongside a table. Postgres renders this as:
+        #   SELECT lower(unnest(ai_tags_suggestion)) AS name, count(*) AS count
+        #   FROM artworks
+        #   WHERE ... GROUP BY 1
+        unnest_col = func.unnest(Artwork.ai_tags_suggestion).column_valued("ai_tag")
+        lowered = func.lower(unnest_col)
+        ai_q = (
+            select(
+                lowered.label("name"),
+                func.count().label("count"),
+            )
+            .select_from(Artwork)
+            .where(published_filter)
+            .group_by(lowered)
+        )
+        ai_rows = (await self.db.execute(ai_q)).fetchall()
+        ai_map: dict[str, int] = {row.name: row.count for row in ai_rows}
+
+        # ── Merge ─────────────────────────────────────────────────────────────
+        merged: dict[str, dict] = {}
+        for name, count in confirmed_map.items():
+            merged[name] = {"name": name, "count": count, "source": "confirmed"}
+        for name, count in ai_map.items():
+            if name in merged:
+                # same text in both: sum counts, keep 'confirmed' source
+                merged[name]["count"] += count
+            else:
+                merged[name] = {"name": name, "count": count, "source": "ai"}
+
+        sorted_tags = sorted(merged.values(), key=lambda t: t["count"], reverse=True)
+        return sorted_tags[:limit]
 
     async def create(self, artist_id: uuid.UUID, data: dict, tag_ids: List[uuid.UUID] = None) -> Artwork:
         artwork = Artwork(artist_id=artist_id, **data)
