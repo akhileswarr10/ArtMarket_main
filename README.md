@@ -16,7 +16,10 @@
   - `/api/notifications/*` - In-app notifications
   - `/api/verification/*` - Artist verification
   - `/api/ai/*` - AI pipeline for auto-captioning and pricing suggestions
+  - `/api/recommendations/*` - Personalised recommendations and buyer feeds using pgvector
 - Integration with Groq / Gemini APIs for AI-powered suggestions
+- **AI Text Embedding Pipeline**: Custom embedding generation service using HuggingFace's Inference API with `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions)
+- **Vector Search & Recommendation Engine**: Integration of `pgvector` inside PostgreSQL/Supabase to compute cosine similarity matching (`<=>`) for similar artworks and buyer recommendation feeds based on centroid calculation of user favorites.
 
 ### Frontend (apps/web)
 - Next.js 14 App Router structure with Tailwind CSS
@@ -24,13 +27,14 @@
 - Pages:
   - `/` - Homepage
   - `/login`, `/register`, `/onboard` - Auth and onboarding flows
-  - `/artworks` - Browse artworks with filters
-  - `/artworks/[id]` - Artwork detail
+  - `/artworks` - Browse artworks with filters (shows personalized recommendations first)
+  - `/artworks/[id]` - Artwork detail (shows 'Similar price' and 'AI picks for you' recommendation rails)
   - `/artist/dashboard` - Artist portal
   - `/buyer/favorites` - Buyer favorites
   - `/admin/dashboard` - Admin panel
   - `/cart`, `/checkout`, `/orders`, `/purchase` - Shopping cart and checkout flows
   - `/settings` - User settings
+- **PersonalisedFeed Component**: Integrates user's favorited items plus 3 recommended items (AI picks and trending fallback) as a compact, horizontal scrolling rail on the Buyer Dashboard and Marketplace page.
 
 ### Infrastructure
 - Supabase RLS policies (`supabase/rls_policies.sql`)
@@ -56,6 +60,7 @@ DATABASE_URL=postgresql+asyncpg://...@db.xxx.supabase.co:6543/postgres
 DATABASE_MIGRATION_URL=postgresql+asyncpg://...@db.xxx.supabase.co:5432/postgres
 GROQ_API_KEY=your-groq-api-key
 CELERY_BROKER_URL=redis://localhost:6379/0
+HF_TOKEN=your-huggingface-api-token
 ```
 
 Create `apps/web/.env.local`:
