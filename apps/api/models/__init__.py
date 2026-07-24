@@ -311,6 +311,24 @@ class AIJob(Base):
         Index("idx_ai_jobs_status", "status"),
     )
 
+class ArtworkEmbedding(Base):
+    __tablename__ = "artwork_embeddings"
+
+    artwork_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("artworks.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    model_name: Mapped[str] = mapped_column(
+        String(100), nullable=False, default="all-MiniLM-L6-v2"
+    )
+    generated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
+
+    artwork: Mapped["Artwork"] = relationship("Artwork")
+
+
 class SystemSetting(Base):
     __tablename__ = "system_settings"
 

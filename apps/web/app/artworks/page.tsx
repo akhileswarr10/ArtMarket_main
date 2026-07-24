@@ -11,6 +11,7 @@ import {
   ChevronRight, Sparkles, Heart, Loader2, Tag
 } from 'lucide-react'
 import FavoriteButton from '@/components/FavoriteButton'
+import PersonalisedFeed from '@/components/PersonalisedFeed'
 
 interface Artwork {
   id: string
@@ -142,6 +143,9 @@ function ArtworksContent() {
             Curated originals from independent artists across every medium and style
           </p>
         </div>
+
+        {/* Personalised Recommendations First */}
+        <PersonalisedFeed />
 
         {/* Discovery Tags Cloud */}
         {discoveryTags.length > 0 && (

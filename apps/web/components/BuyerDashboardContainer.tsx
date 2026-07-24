@@ -12,6 +12,7 @@ import {
   Layers, Sparkles, X, Filter, Loader2
 } from 'lucide-react'
 import FavoriteButton from './FavoriteButton'
+import PersonalisedFeed from './PersonalisedFeed'
 
 interface Artwork {
   id: string
@@ -116,6 +117,9 @@ export default function BuyerDashboardContainer({ session }: { session: any }) {
             )}
           </form>
         </div>
+
+        {/* Personalised Buyer Recommendations */}
+        <PersonalisedFeed />
 
         {/* Market Feed */}
         <section>

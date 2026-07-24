@@ -255,6 +255,54 @@ class ArtworkRepository:
         result = await self.db.execute(query)
         return result.scalars().unique().all()
 
+    async def get_similar_by_embedding(self, artwork: Artwork, limit: int = 8) -> List[Artwork]:
+        """
+        Cosine similarity via pgvector.
+        Falls back to get_similar_by_metadata() if no embedding exists yet.
+        """
+        from sqlalchemy import text as sql_text
+
+        check = await self.db.execute(
+            sql_text("SELECT 1 FROM artwork_embeddings WHERE artwork_id = :id"),
+            {"id": str(artwork.id)},
+        )
+        if not check.fetchone():
+            return await self.get_similar_by_metadata(artwork, limit=limit)
+
+        nn_result = await self.db.execute(
+            sql_text("""
+                SELECT ae.artwork_id
+                FROM artwork_embeddings ae
+                JOIN artwork_embeddings ref ON ref.artwork_id = :source_id
+                JOIN artworks a ON a.id = ae.artwork_id
+                WHERE ae.artwork_id != :source_id
+                  AND a.status = 'published'
+                  AND a.deleted_at IS NULL
+                ORDER BY ae.embedding <=> ref.embedding
+                LIMIT :limit
+            """),
+            {"source_id": str(artwork.id), "limit": limit},
+        )
+        similar_ids = [row[0] for row in nn_result.fetchall()]
+
+        if not similar_ids:
+            return await self.get_similar_by_metadata(artwork, limit=limit)
+
+        candidate_q = (
+            self._base_query_with_relations()
+            .where(
+                Artwork.id.in_(similar_ids),
+                Artwork.status == "published",
+                Artwork.deleted_at == None,
+            )
+            .limit(limit)
+        )
+        result = await self.db.execute(candidate_q)
+        artworks = result.scalars().unique().all()
+
+        id_order = {uid: idx for idx, uid in enumerate(similar_ids)}
+        return sorted(artworks, key=lambda a: id_order.get(a.id, 999))
+
     async def get_discovery_tags(self, limit: int = 30) -> List[dict]:
         """
         Returns a merged tag-cloud for the browse page combining:

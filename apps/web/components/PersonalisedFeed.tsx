@@ -1,52 +1,52 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchApi } from '@/lib/api/client'
-import { ImageIcon } from 'lucide-react'
+import { ImageIcon, Sparkles } from 'lucide-react'
 
 interface ArtworkImage {
   signed_url: string | null
   is_primary: boolean
 }
 
-interface SimilarArtwork {
+interface Artwork {
   id: string
   title: string | null
   price: number | null
   medium: string | null
   images: ArtworkImage[]
   tags: { id: string; name: string }[]
+  is_favorited?: boolean
 }
 
-interface Props {
-  title: string
-  artworkId: string
-  endpoint: 'similar' | 'similar-price' | 'similar-ai'
-}
-
-export default function ArtworkRecommendationRail({ title, artworkId, endpoint }: Props) {
+export default function PersonalisedFeed() {
   const router = useRouter()
+  const [artworks, setArtworks] = useState<Artwork[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const { data, isLoading } = useQuery<{ artworks: SimilarArtwork[] }>({
-    queryKey: [endpoint, artworkId],
-    queryFn: () => fetchApi(`/artworks/${artworkId}/${endpoint}`),
-    staleTime: 5 * 60 * 1000, // 5 min — similarity results don't change often
-  })
+  useEffect(() => {
+    fetchApi('/recommendations/for-me')
+      .then((data) => {
+        if (data?.artworks) setArtworks(data.artworks)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
-  const artworks = data?.artworks ?? []
-
-  // Skeleton rail — matches the skeleton pattern used in artworks/page.tsx
-  if (isLoading) {
+  // Skeleton rail
+  if (loading) {
     return (
-      <div className="space-y-3">
-        <div className="h-4 w-36 bg-surface/60 rounded skeleton" />
+      <div className="mb-10 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-gold-muted flex items-center justify-center">
+            <Sparkles className="w-3 h-3 text-gold-400 animate-pulse" />
+          </div>
+          <div className="h-3.5 w-40 bg-surface/60 rounded skeleton" />
+        </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl overflow-hidden skeleton shrink-0 w-44"
-            >
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="rounded-2xl overflow-hidden skeleton shrink-0 w-44">
               <div className="aspect-square bg-surface/60" />
               <div className="p-3 space-y-2">
                 <div className="h-3.5 bg-surface/60 rounded w-3/4" />
@@ -59,16 +59,21 @@ export default function ArtworkRecommendationRail({ title, artworkId, endpoint }
     )
   }
 
-  // Render nothing when there are no results — intentional per spec
-  if (artworks.length === 0) return null
+  if (!artworks.length) return null
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-[11px] font-bold text-ink-secondary uppercase tracking-widest">
-        {title}
-      </h3>
+    <div className="mb-10 space-y-3">
+      {/* Section header */}
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-lg bg-gold-muted flex items-center justify-center">
+          <Sparkles className="w-3 h-3 text-gold-400" />
+        </div>
+        <h3 className="text-[11px] font-bold text-ink-secondary uppercase tracking-widest">
+          Recommended for you
+        </h3>
+      </div>
 
-      {/* Horizontally scrollable rail */}
+      {/* Horizontal scrollable rail — visually distinct from the main artwork grid */}
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
         {artworks.map((artwork) => {
           const primaryImage =
@@ -80,7 +85,7 @@ export default function ArtworkRecommendationRail({ title, artworkId, endpoint }
               onClick={() => router.push(`/artworks/${artwork.id}`)}
               className="group bg-surface border border-border-subtle rounded-2xl shadow-card overflow-hidden cursor-pointer flex flex-col hover:border-border-strong hover:shadow-card-hover transition-all duration-300 shrink-0 w-44"
             >
-              {/* Square image — same aspect-square + scale-on-hover as browse grid */}
+              {/* Square image */}
               <div className="aspect-square overflow-hidden bg-surface-raised relative">
                 {primaryImage?.signed_url ? (
                   <img
@@ -95,7 +100,7 @@ export default function ArtworkRecommendationRail({ title, artworkId, endpoint }
                 )}
               </div>
 
-              {/* Card body — matches p-3 / gap-1.5 structure from browse grid */}
+              {/* Card body */}
               <div className="p-3 flex flex-col gap-1.5 flex-1">
                 <h4 className="font-semibold text-ink truncate text-sm">
                   {artwork.title || 'Untitled'}
@@ -115,12 +120,8 @@ export default function ArtworkRecommendationRail({ title, artworkId, endpoint }
                   )}
                 </div>
 
-                {/* Tags — same gold chip style as browse grid, capped at 2 for space */}
                 {artwork.tags.length > 0 && (
-                  <div
-                    className="flex flex-wrap gap-1 mt-0.5"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex flex-wrap gap-1 mt-0.5" onClick={(e) => e.stopPropagation()}>
                     {artwork.tags.slice(0, 2).map((tag) => (
                       <span
                         key={tag.id}

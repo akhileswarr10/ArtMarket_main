@@ -249,7 +249,7 @@ export default function ArtworkDetailPage() {
       <main className="container mx-auto px-6 pt-28 pb-24">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Gallery Section */}
-          <div className="space-y-4 sticky top-24">
+          <div className="space-y-4 lg:sticky lg:top-24">
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -356,14 +356,14 @@ export default function ArtworkDetailPage() {
             {artwork.status !== 'sold' && (
               <div className="space-y-8">
                 <ArtworkRecommendationRail
-                  title="You might also like"
-                  artworkId={artwork.id}
-                  endpoint="similar"
-                />
-                <ArtworkRecommendationRail
-                  title="At this price"
+                  title="Similar price"
                   artworkId={artwork.id}
                   endpoint="similar-price"
+                />
+                <ArtworkRecommendationRail
+                  title="AI picks for you"
+                  artworkId={artwork.id}
+                  endpoint="similar-ai"
                 />
               </div>
             )}

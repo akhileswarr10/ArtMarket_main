@@ -110,6 +110,39 @@ async def process_ai_job(job_id: uuid.UUID):
                 metadata_data={"artwork_id": str(artwork.id), "job_id": str(job.id)}
             )
             db.add(notification)
+
+            # --- Embedding generation (non-fatal) ---
+            try:
+                from ai_services.embeddings.service import generate_artwork_embedding
+                from sqlalchemy import text as sql_text
+                embedding_vec = await generate_artwork_embedding(
+                    title=suggested_title,
+                    description=caption,
+                    medium=artwork.medium,
+                    style=detected_style,
+                    tags=tags,
+                )
+                if embedding_vec:
+                    vec_str = "[" + ",".join(str(v) for v in embedding_vec) + "]"
+                    await db.execute(
+                        sql_text("""
+                            INSERT INTO artwork_embeddings (artwork_id, embedding, model_name)
+                            VALUES (:artwork_id, CAST(:embedding AS vector(384)), :model_name)
+                            ON CONFLICT (artwork_id) DO UPDATE
+                              SET embedding    = EXCLUDED.embedding,
+                                  model_name   = EXCLUDED.model_name,
+                                  generated_at = now()
+                        """),
+                        {
+                            "artwork_id": str(artwork.id),
+                            "embedding": vec_str,
+                            "model_name": "all-MiniLM-L6-v2",
+                        },
+                    )
+            except Exception as embed_err:
+                print(f"[embeddings] non-fatal error: {embed_err}")
+            # --- End embedding generation ---
+
             await db.commit()
 
         except Exception as e:

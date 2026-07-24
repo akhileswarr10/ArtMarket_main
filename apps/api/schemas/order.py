@@ -2,7 +2,25 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from typing import List, Optional
 from datetime import datetime
-from schemas.artwork import ArtworkResponse
+
+
+class ArtworkImageInOrderResponse(BaseModel):
+    """Slim image shape returned by the orders query (only signed_url + is_primary)."""
+    signed_url: Optional[str] = None
+    is_primary: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ArtworkInOrderResponse(BaseModel):
+    """Slim artwork shape embedded in order items — only the fields the orders router returns."""
+    id: UUID
+    title: Optional[str] = None
+    medium: Optional[str] = None
+    dimensions: Optional[str] = None
+    images: List[ArtworkImageInOrderResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
 
 class OrderItemResponse(BaseModel):
     id: UUID
@@ -11,7 +29,7 @@ class OrderItemResponse(BaseModel):
     price_paid: float
     title_snapshot: str
     status: str
-    artwork: Optional[ArtworkResponse] = None
+    artwork: Optional[ArtworkInOrderResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 

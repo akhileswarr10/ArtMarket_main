@@ -241,6 +241,21 @@ async def get_similar_price_artworks(
     )
 
 
+@router.get("/{artwork_id}/similar-ai", response_model=SimilarArtworksResponse)
+async def get_similar_artworks_ai(
+    artwork_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    """AI embedding-based similarity. Falls back to tag/metadata similarity
+    if no embedding has been generated for this artwork yet."""
+    repo = ArtworkRepository(db)
+    artwork = await repo.get_by_id(artwork_id)
+    if not artwork:
+        raise HTTPException(status_code=404, detail="Artwork not found")
+    similar = await repo.get_similar_by_embedding(artwork, limit=8)
+    return SimilarArtworksResponse(artworks=[_build_artwork_response(a) for a in similar])
+
+
 @router.patch("/{artwork_id}", response_model=ArtworkResponse)
 async def update_artwork(
     artwork_id: UUID,

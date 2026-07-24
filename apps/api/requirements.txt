@@ -14,3 +14,4 @@ httpx
 celery[redis]>=5.4.0
 redis>=5.0.4
 groq
+pgvector>=0.3.0
