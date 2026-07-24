@@ -68,7 +68,7 @@ export default function ArtworkDetailPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        router.push('/login')
+        router.push(`/login?redirect=/artworks/${params.id}`)
         return
       }
 
@@ -419,7 +419,14 @@ export default function ArtworkDetailPage() {
                   </button>
                   <button
                     disabled={artwork.status !== 'published' || artwork.price === null}
-                    onClick={() => router.push(`/purchase?artworkId=${artwork.id}`)}
+                    onClick={async () => {
+                      const { data: { session } } = await supabase.auth.getSession()
+                      if (!session) {
+                        router.push(`/login?redirect=/purchase?artworkId=${artwork.id}`)
+                        return
+                      }
+                      router.push(`/purchase?artworkId=${artwork.id}`)
+                    }}
                     className="flex-1 py-4 bg-gradient-to-r from-gold-600 to-copper hover:from-gold-500 hover:to-copper text-ink font-bold rounded-2xl shadow-xl shadow-gold-sm transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Buy Now

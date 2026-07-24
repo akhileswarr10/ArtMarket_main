@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import LoginForm from './LoginForm'
 import { Sparkles, Palette } from 'lucide-react'
 
@@ -44,7 +45,9 @@ export default async function LoginPage() {
               <p className="text-ink-secondary font-medium mt-2">Enter your credentials to access your gallery</p>
             </div>
 
-            <LoginForm />
+            <Suspense fallback={null}>
+              <LoginForm />
+            </Suspense>
 
             <div className="mt-10">
               <div className="relative mb-6">

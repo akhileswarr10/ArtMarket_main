@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react'
 
 export default function LoginForm() {
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,7 +30,9 @@ export default function LoginForm() {
       return
     }
 
-    router.push('/dashboard')
+    // Redirect to the intended destination if provided, otherwise go to dashboard
+    const redirectTo = searchParams.get('redirect') || '/dashboard'
+    router.push(redirectTo)
     router.refresh()
   }
 
