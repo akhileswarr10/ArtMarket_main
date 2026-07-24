@@ -97,3 +97,30 @@ lerna-debug.log*
 .agent/
 graphify-out/
 claude.md
+
+# ==========================================
+# Scratch / Temp / Dev-only Files
+# ==========================================
+scratch/
+apps/api/scratch/
+apps/web/scratch/
+apps/api/get-pip.py
+apps/api/drop_all.py
+apps/api/dump_schema.py
+apps/api/apply_rls.py
+apps/api/test_jwt.py
+diff.md
+context.md
+prompt_*.md
+
+# ==========================================
+# Build Artifacts
+# ==========================================
+apps/web/tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# ==========================================
+# IDE / AI Tool Configs (local only)
+# ==========================================
+.windsurf/
+.claude/
