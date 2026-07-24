@@ -109,7 +109,7 @@ export default function OnboardPage() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="bg-surface/60 backdrop-blur-xl border border-border rounded-3xl overflow-hidden shadow-2xl"
         >
-          <div className="p-8 md:p-12">
+          <div className="p-6 sm:p-8 md:p-12">
             {/* Header */}
             <div className="text-center mb-10">
               <motion.div

@@ -304,7 +304,7 @@ export default function ArtworkDetailPage() {
             </div>
 
             <div>
-              <h1 className="font-display text-6xl font-bold text-ink leading-none tracking-tight mb-6">
+              <h1 className="font-display text-4xl sm:text-6xl font-bold text-ink leading-none tracking-tight mb-6">
                 {artwork.title}
               </h1>
               <div className="flex items-center gap-6">

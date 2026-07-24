@@ -34,7 +34,7 @@ export default async function RegisterPage() {
 
         {/* Register Card */}
         <div className="bg-surface/60 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-border overflow-hidden">
-          <div className="p-10 md:p-14">
+          <div className="p-6 sm:p-10 md:p-14">
             <div className="text-center mb-10">
               <div className="badge-gold mb-4">
                 <UserPlus className="w-3 h-3" />

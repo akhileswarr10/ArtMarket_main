@@ -47,7 +47,7 @@ export default function HomePage() {
                 AI-Powered Art Discovery
               </motion.div>
               
-              <motion.h1 variants={fadeIn} className="text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] mb-8 text-ink">
+              <motion.h1 variants={fadeIn} className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] mb-8 text-ink">
                 <span className="bg-gradient-to-r from-gold-400 to-copper bg-clip-text text-transparent">Discover</span> the <br />Future of Art.
               </motion.h1>
 
@@ -67,7 +67,7 @@ export default function HomePage() {
                 )}
               </motion.div>
 
-              <motion.div variants={fadeIn} className="mt-20 flex gap-12 border-t border-border pt-12">
+              <motion.div variants={fadeIn} className="mt-20 flex flex-wrap gap-8 sm:gap-12 border-t border-border pt-12">
                 {[
                   { label: 'Artists', value: '10K+' },
                   { label: 'Artworks', value: '50K+' },
@@ -107,7 +107,7 @@ export default function HomePage() {
               <motion.div 
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-10 -left-10 bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-border flex items-center gap-5"
+                className="absolute -bottom-10 -left-4 sm:-left-10 bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-border flex items-center gap-5"
               >
                 <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center">
                   <Zap className="w-6 h-6 text-emerald" />
