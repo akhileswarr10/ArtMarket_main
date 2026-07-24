@@ -141,7 +141,7 @@ export default function PurchasesPage() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xl font-mono font-semibold text-ink">${order.total_amount?.toLocaleString()}</p>
+                    <p className="text-xl font-mono font-semibold text-ink">£{order.total_amount?.toLocaleString()}</p>
                     <p className="text-[10px] text-ink-secondary uppercase tracking-widest font-bold mt-1">Order #{order.id.slice(0, 8)}</p>
                   </div>
 
@@ -245,18 +245,18 @@ export default function PurchasesPage() {
 
                 {/* Summary */}
                 <div className="bg-surface/60 rounded-[2rem] p-6 border border-border-subtle space-y-3">
-                   <div className="flex justify-between text-sm text-ink-secondary">
-                     <span>Artwork Price</span>
-                     <span className="text-ink">${selectedOrder.total_amount?.toLocaleString()}</span>
-                   </div>
-                   <div className="flex justify-between text-sm text-ink-secondary">
-                     <span>Standard Shipping</span>
-                     <span className="text-emerald font-bold uppercase text-[10px]">Free</span>
-                   </div>
-                   <div className="pt-3 border-t border-border flex justify-between items-baseline">
-                     <span className="font-bold text-ink">Total Paid</span>
-                     <span className="font-mono text-3xl font-semibold text-emerald">${selectedOrder.total_amount?.toLocaleString()}</span>
-                   </div>
+                    <div className="flex justify-between text-sm text-ink-secondary">
+                      <span>Artwork Price</span>
+                      <span className="text-ink">£{selectedOrder.total_amount?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-ink-secondary">
+                      <span>Standard Shipping</span>
+                      <span className="text-emerald font-bold uppercase text-[10px]">Free</span>
+                    </div>
+                    <div className="pt-3 border-t border-border flex justify-between items-baseline">
+                      <span className="font-bold text-ink">Total Paid</span>
+                      <span className="font-mono text-3xl font-semibold text-emerald">£{selectedOrder.total_amount?.toLocaleString()}</span>
+                    </div>
                 </div>
               </div>
 

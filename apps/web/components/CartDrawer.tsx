@@ -112,7 +112,7 @@ export default function CartDrawer() {
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <span className={`font-bold ${isSold ? 'text-ink-secondary' : 'text-gold-400'}`}>
-                            ${item.artwork.price?.toLocaleString()}
+                            £{item.artwork.price?.toLocaleString()}
                           </span>
                           <button 
                             onClick={() => handleRemove(item.artwork_id)}
@@ -132,7 +132,7 @@ export default function CartDrawer() {
               <div className="p-6 border-t border-border bg-slate-900/50">
                 <div className="flex justify-between items-baseline mb-6">
                   <span className="text-ink-secondary font-medium">Subtotal</span>
-                  <span className="text-2xl font-mono font-semibold text-ink">${total.toLocaleString()}</span>
+                  <span className="text-2xl font-mono font-semibold text-ink">£{total.toLocaleString()}</span>
                 </div>
                 <button 
                   onClick={handleCheckout}

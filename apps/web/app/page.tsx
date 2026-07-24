@@ -71,7 +71,7 @@ export default function HomePage() {
                 {[
                   { label: 'Artists', value: '10K+' },
                   { label: 'Artworks', value: '50K+' },
-                  { label: 'Volume', value: '$2.4M' },
+                  { label: 'Volume', value: '£2.4M' },
                 ].map((stat, i) => (
                   <div key={i}>
                     <div className="font-display text-4xl font-bold text-ink">{stat.value}</div>
@@ -192,7 +192,7 @@ export default function HomePage() {
                     <h3 className="font-display text-xl font-semibold text-ink group-hover:text-gold-400 transition-colors cursor-pointer">
                       {item === 1 ? 'Ethereal Currents' : 'Regal Synthesis'}
                     </h3>
-                    <div className="text-lg font-mono font-semibold text-emerald">${((0.5 * item + 0.2)*2000).toLocaleString()}</div>
+                    <div className="text-lg font-mono font-semibold text-emerald">£{((0.5 * item + 0.2)*2000).toLocaleString()}</div>
                   </div>
                   <div className="flex items-center gap-2 text-ink-secondary font-bold text-xs uppercase tracking-widest">
                     <span className="w-1.5 h-1.5 bg-gold-500 rounded-full"></span>

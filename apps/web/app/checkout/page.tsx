@@ -166,7 +166,7 @@ export default function CheckoutPage() {
                     <div className="flex justify-between items-start text-sm">
                       <span className="text-ink-muted line-clamp-1 pr-4">{item.artwork.title}</span>
                       <span className="text-ink font-medium shrink-0">
-                        ${(item.artwork.price||0).toLocaleString()}
+                        £{(item.artwork.price||0).toLocaleString()}
                       </span>
                     </div>
                     {isSold ? (
@@ -191,7 +191,7 @@ export default function CheckoutPage() {
             <div className="space-y-3 pt-6 border-t border-border-subtle text-sm">
               <div className="flex justify-between text-ink-secondary">
                 <span>Subtotal</span>
-                <span className="text-ink">${total.toLocaleString()}</span>
+                <span className="text-ink">£{total.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-ink-secondary">
                 <span>Shipping</span>
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
               </div>
               <div className="pt-3 border-t border-border-subtle flex justify-between items-baseline">
                 <span className="font-bold text-ink">Total</span>
-                <span className="text-2xl font-mono font-semibold text-gold-500">${total.toLocaleString()}</span>
+                <span className="text-2xl font-mono font-semibold text-gold-500">£{total.toLocaleString()}</span>
               </div>
             </div>
           </div>

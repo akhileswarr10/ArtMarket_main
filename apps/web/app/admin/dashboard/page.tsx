@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-4 gap-6 mb-10">
                 <StatCard label="Total Users" value={stats?.total_users} icon={Users} color="indigo" loading={statsLoading} />
                 <StatCard label="Live Artworks" value={stats?.total_artworks} icon={Package} color="emerald" loading={statsLoading} />
-                <StatCard label="Rev. To Date" value={`$${(stats?.total_revenue || 0).toLocaleString()}`} icon={BarChart3} color="violet" loading={statsLoading} />
+                <StatCard label="Rev. To Date" value={`£${(stats?.total_revenue || 0).toLocaleString()}`} icon={BarChart3} color="violet" loading={statsLoading} />
                 <div onClick={() => setActiveTab('verification')} className="cursor-pointer">
                   <StatCard label="Pending Review" value={stats?.pending_artworks} icon={AlertTriangle} color="amber" loading={statsLoading} />
                 </div>
@@ -377,13 +377,12 @@ export default function AdminDashboardPage() {
                     <SectionHeading title="Platform Alerts" subtitle="Recent security and traffic notes" icon={ShieldAlert} color="bg-amber-500" />
                     <div className="space-y-4">
                        {[
-                         { msg: 'System backup completed successfully', time: '2h ago', status: 'ok' },
-                         { msg: 'New curator registration pending', time: '5h ago', status: 'alert' },
-                         { msg: 'Standard API maintenance scheduled', time: '1d ago', status: 'info' },
+                         { msg: 'System backup completed successfully', status: 'ok' },
+                         { msg: 'New curator registration pending', status: 'alert' },
+                         { msg: 'Standard API maintenance scheduled', status: 'info' },
                        ].map((alert, i) => (
                           <div key={i} className="flex items-center justify-between p-4 bg-surface/40 rounded-2xl border border-border-subtle">
                              <span className="text-sm font-medium text-ink-muted">{alert.msg}</span>
-                             <span className="text-[10px] text-ink-secondary font-bold">{alert.time}</span>
                           </div>
                        ))}
                     </div>
@@ -561,7 +560,7 @@ export default function AdminDashboardPage() {
                                <p className="font-bold text-ink text-sm tracking-tight">#{o.id.substring(0,8).toUpperCase()}</p>
                             </td>
                             <td className="px-8 py-5">
-                               <p className="text-sm font-mono font-semibold text-ink">${o.total_amount.toLocaleString()}</p>
+                               <p className="text-sm font-mono font-semibold text-ink">£{o.total_amount.toLocaleString()}</p>
                                <p className="text-[10px] text-ink-secondary font-bold uppercase">{o.currency}</p>
                             </td>
                             <td className="px-8 py-5">
@@ -826,7 +825,7 @@ export default function AdminDashboardPage() {
                                  <div className="grid grid-cols-2 gap-6 mb-12 text-left">
                                     <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
                                        <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Pricing</p>
-                                       <p className="text-2xl font-mono font-semibold text-ink tracking-tighter text-left">${artworkDetail.price?.toLocaleString() || '0'}</p>
+                                       <p className="text-2xl font-mono font-semibold text-ink tracking-tighter text-left">£{artworkDetail.price?.toLocaleString() || '0'}</p>
                                     </div>
                                     <div className="p-6 bg-surface/40 rounded-3xl border border-border-subtle hover:bg-surface/60 transition-colors text-left">
                                        <p className="text-[10px] font-bold text-ink-secondary uppercase tracking-widest mb-1 text-left">Status</p>
