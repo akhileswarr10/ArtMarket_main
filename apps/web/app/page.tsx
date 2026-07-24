@@ -102,21 +102,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              
-              {/* Floating Element */}
-              <motion.div 
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-10 -left-4 sm:-left-10 bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-border flex items-center gap-5"
-              >
-                <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-emerald" />
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-ink-muted uppercase tracking-widest">Live Auction</div>
-                  <div className="text-lg font-bold text-ink">4.58 ETH</div>
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
